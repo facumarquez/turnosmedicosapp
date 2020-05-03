@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AltaDeTurno">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="0dp">
+
+        <TextView
+            android:id="@+id/tvEspecialidad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Seleccione especialidad:" />
+
+        <Spinner
+            android:id="@+id/spEspecialidad"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/tvMedico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Seleccione medico:" />
+
+        <Spinner
+            android:id="@+id/spMedico"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    
+        <TextView
+            android:id="@+id/tvFechaDesde"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Fecha desde:" />
+
+        <EditText
+            android:id="@+id/etFechaDesde"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seleccione fecha" />
+
+        <TextView
+            android:id="@+id/tvHoraDesde"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Hora desde:" />
+
+        <EditText
+            android:id="@+id/etHoraDesde"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seleccione hora" />
+
+        <TextView
+            android:id="@+id/tvFechaHasta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Fecha hasta:" />
+
+        <EditText
+            android:id="@+id/etFechaHasta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seleccione fecha" />
+
+        <TextView
+            android:id="@+id/tvHoraHasta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="Hora hasta:" />
+
+        <EditText
+            android:id="@+id/etHoraHasta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Seleccione hora" />
+
+        <Button
+            android:id="@+id/btVerTurnosDisponibles"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Ver turnos disponibles" />
+
+
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

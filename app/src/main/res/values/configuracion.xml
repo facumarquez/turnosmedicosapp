@@ -1,0 +1,4 @@
+<resources>
+    <string name="apiTurnosURL">http://10.0.2.2:1317/</string>
+    <string name="pruebasURL">https://jsonplaceholder.typicode.com/</string>
+</resources>
