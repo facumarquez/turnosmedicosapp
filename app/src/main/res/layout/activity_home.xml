@@ -55,6 +55,12 @@
                     android:layout_height="wrap_content"
                     android:text="Solicitar turno" />
 
+                <Button
+                    android:id="@+id/btVerPerfil"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="VER MI PERFIL" />
+
             </LinearLayout>
         </ScrollView>
     </LinearLayout>

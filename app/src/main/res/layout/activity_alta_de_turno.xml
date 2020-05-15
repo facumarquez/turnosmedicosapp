@@ -38,8 +38,8 @@
             android:id="@+id/spMedico"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    
-        <TextView
+
+      <!--<TextView
             android:id="@+id/tvFechaDesde"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -50,52 +50,36 @@
             android:id="@+id/etFechaDesde"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Seleccione fecha" />
+            android:hint="Seleccione fecha" />-->
+
 
         <TextView
-            android:id="@+id/tvHoraDesde"
+            android:id="@+id/tvHorario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Hora desde:" />
+            android:text="Seleccione horario:" />
 
-        <EditText
-            android:id="@+id/etHoraDesde"
+        <Spinner
+            android:id="@+id/spHorario"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Seleccione hora" />
+            android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/tvFechaHasta"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Fecha hasta:" />
+            android:layout_height="316dp"
+            android:gravity="center">
 
-        <EditText
-            android:id="@+id/etFechaHasta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Seleccione fecha" />
-
-        <TextView
-            android:id="@+id/tvHoraHasta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Hora hasta:" />
-
-        <EditText
-            android:id="@+id/etHoraHasta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Seleccione hora" />
+            <CalendarView
+                android:layout_width="300dp"
+                android:layout_height="300dp" />
+        </LinearLayout>
 
         <Button
-            android:id="@+id/btVerTurnosDisponibles"
+            android:id="@+id/btConfirmar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Ver turnos disponibles" />
+            android:text="SIGUIENTE" />
 
 
     </LinearLayout>

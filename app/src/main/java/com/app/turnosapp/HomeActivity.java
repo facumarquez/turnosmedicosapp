@@ -22,7 +22,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class HomeActivity extends AppCompatActivity {
 
     TextView tvTurnos;
-    Button altaTurno;
+    Button altaTurno, verPerfil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,16 +31,16 @@ public class HomeActivity extends AppCompatActivity {
 
         altaTurno = (Button)findViewById(R.id.btAltaTurno);
         tvTurnos = findViewById(R.id.tvTurnos);
+        verPerfil = (Button)findViewById(R.id.btVerPerfil);
 
         //Cargo los turnos
         getTurnos();
 
         //Botones
-        altaTurno.setOnClickListener(new View.OnClickListener(){
+        verPerfil.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                Intent intent = new Intent(HomeActivity.this, AltaDeTurno.class);
+                Intent intent = new Intent(HomeActivity.this, paciente_verPerfil.class);
                 startActivity(intent);
-
             }
         });
     }

@@ -48,61 +48,13 @@ public class AltaDeTurno extends AppCompatActivity {
         setContentView(R.layout.activity_alta_de_turno);
 
         // Inicializo los controles
-        fechaDesde = (EditText) findViewById(R.id.etFechaDesde);
-        horaDesde = (EditText) findViewById(R.id.etHoraDesde);
-        especialidades = (Spinner) findViewById(R.id.spEspecialidad);
+        //especialidades = (Spinner) findViewById(R.id.spEspecialidad);
 
         //Cargo las especialidades en el Spinner
-        getEspecialidades();
+        //getEspecialidades();
 
 
 
-        // Armo el Datepicker para "Fecha desde:"
-        fechaDesde.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View v) {
-                // calender class's instance and get current fechaDesde , month and year from calender
-                final Calendar c = Calendar.getInstance();
-                int mYear = c.get(Calendar.YEAR); // current year
-                int mMonth = c.get(Calendar.MONTH); // current month
-                int mDay = c.get(Calendar.DAY_OF_MONTH); // current day
-                // fechaDesde picker dialog
-                DatePickerDialog fechaDesdePickerDialog;
-                fechaDesdePickerDialog = new DatePickerDialog(AltaDeTurno.this,
-                        new DatePickerDialog.OnDateSetListener() {
-
-                            @Override
-                            public void onDateSet(DatePicker view, int year,
-                                                  int monthOfYear, int dayOfMonth) {
-                                // set day of month , month and year value in the edit text
-                                fechaDesde.setText(String.format("%02d/%02d/%d", dayOfMonth, monthOfYear,year));
-                            }
-                        }, mYear, mMonth, mDay);
-                fechaDesdePickerDialog.show();
-            }
-        });
-
-        //Armo el Timepicker para "Hora desde:"
-        horaDesde.setOnClickListener(new View.OnClickListener() {
-            @RequiresApi(api = Build.VERSION_CODES.N)
-            @Override
-            public void onClick(View v) {
-                Calendar mcurrentTime = Calendar.getInstance();
-                int hour = mcurrentTime.get(Calendar.HOUR_OF_DAY);
-                int minute = mcurrentTime.get(Calendar.MINUTE);
-                TimePickerDialog mTimePicker;
-                mTimePicker = new TimePickerDialog(AltaDeTurno.this, new TimePickerDialog.OnTimeSetListener() {
-                    @Override
-                    public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                        horaDesde.setText(String.format("%02d:%02d", selectedHour, selectedMinute));
-                    }
-                }, hour, minute, true);//Yes 24 hour time
-                mTimePicker.setTitle("Seleccione la hora");
-                mTimePicker.show();
-
-            }
-        });
     }
 
 
