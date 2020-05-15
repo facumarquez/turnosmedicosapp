@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class usuario_verPerfil extends AppCompatActivity {
+public class Usuario_verPerfil extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
