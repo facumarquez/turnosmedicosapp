@@ -52,8 +52,15 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View view){
                 hideKeyboard((Button)login);
                 if(loginUser(usuario.getText().toString(),password.getText().toString(),perfiles.getSelectedItem().toString().toLowerCase())){
-                    Intent intent = new Intent(MainActivity.this, HomeActivity.class);
-                    startActivity(intent);
+                    Intent intent = null;
+                    if (perfiles.getSelectedItem().toString().toLowerCase().equals("paciente")){
+                        intent = new Intent(MainActivity.this, HomeActivity.class);
+                        startActivity(intent);
+                    }
+                    if (perfiles.getSelectedItem().toString().toLowerCase().equals("medico")){
+                        intent = new Intent(MainActivity.this, AgendaMedicoActivity.class);
+                        startActivity(intent);
+                    }
                 }
             }
         });
