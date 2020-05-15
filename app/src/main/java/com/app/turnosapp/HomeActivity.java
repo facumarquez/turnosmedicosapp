@@ -39,7 +39,7 @@ public class HomeActivity extends AppCompatActivity {
         //Botones
         verPerfil.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                Intent intent = new Intent(HomeActivity.this, paciente_verPerfil.class);
+                Intent intent = new Intent(HomeActivity.this, Usuario_verPerfil.class);
                 startActivity(intent);
             }
         });
