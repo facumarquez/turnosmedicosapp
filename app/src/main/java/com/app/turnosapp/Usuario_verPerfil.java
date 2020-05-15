@@ -4,11 +4,11 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class paciente_verPerfil extends AppCompatActivity {
+public class usuario_verPerfil extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_paciente_ver_perfil);
+        setContentView(R.layout.activity_usuario_ver_perfil);
     }
 }
