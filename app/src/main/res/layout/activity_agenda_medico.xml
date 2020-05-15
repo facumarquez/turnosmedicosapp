@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".AgendaMedicoActivity">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:layout_editor_absoluteX="1dp"
+        tools:layout_editor_absoluteY="1dp">
+
+        <TextView
+            android:id="@+id/tvtitulo"
+            android:layout_height="wrap_content"
+            android:layout_width = "wrap_content"
+            android:layout_gravity="center"
+            android:text="Agenda Mensual"
+            android:textSize="36sp"
+            android:gravity="center"
+            android:layout_marginTop="50dp"/>
+
+        <ImageView
+            android:id="@+id/ivagenda"
+            android:layout_width="172dp"
+            android:layout_height="136dp"
+            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
+            app:srcCompat="@drawable/ic_launcher_foreground" />
+
+
+
+        <TextView
+            android:id="@+id/tvmes"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:text="Seleccione el mes: "
+            android:textSize="25sp"/>
+
+        <Spinner
+            android:id="@+id/spMes"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <TextView
+            android:id="@+id/tvanio"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Seleccione el año: "
+            android:textSize="25dp"
+            android:layout_gravity="center" />
+
+        <Spinner
+            android:id="@+id/spAnio"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+
+        <Button
+            android:id="@+id/btnAgenda"
+            android:layout_width="191dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:text="VER/CARGAR AGENDA"
+            android:layout_gravity="center" />
+
+        <Button
+            android:id="@+id/btnPerfil"
+            android:layout_width="191dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="10dp"
+            android:text="VER MI PERFIL"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
