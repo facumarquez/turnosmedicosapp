@@ -12,13 +12,13 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".AgendaMedicoActivity">
-        <intent-filter>
-            <action android:name="android.intent.action.MAIN" />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
 
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent-filter>
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
-        <activity android:name=".paciente_verPerfil"></activity>
+        <activity android:name=".Usuario_verPerfil" />
         <activity android:name=".AltaTurno" />
         <activity android:name=".AltaDeTurno" />
         <activity android:name=".HomeActivity" />
