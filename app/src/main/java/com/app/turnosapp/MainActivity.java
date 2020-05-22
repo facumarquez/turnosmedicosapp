@@ -54,11 +54,14 @@ public class MainActivity extends AppCompatActivity {
                 if(loginUser(usuario.getText().toString(),password.getText().toString(),perfiles.getSelectedItem().toString().toLowerCase())){
                     Intent intent = null;
                     if (perfiles.getSelectedItem().toString().toLowerCase().equals("paciente")){
-                        intent = new Intent(MainActivity.this, HomeActivity.class);
+                        intent = new Intent(MainActivity.this, Paciente_HomeActivity.class);
+                        //intent = new Intent(MainActivity.this, HomeActivity.class);
+                        intent.putExtra("usuario",usuario.getText().toString());
                         startActivity(intent);
                     }
                     if (perfiles.getSelectedItem().toString().toLowerCase().equals("medico")){
                         intent = new Intent(MainActivity.this, AgendaMedicoActivity.class);
+                        intent.putExtra("usuario",usuario.getText().toString());
                         startActivity(intent);
                     }
                 }
@@ -109,7 +112,7 @@ public class MainActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<Usuario> call, Throwable t) {
-                Toast.makeText(MainActivity.this, "Error en el servicio de login", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Error de conexión al servicio", Toast.LENGTH_SHORT).show();
                 //Toast.makeText(MainActivity.this, t.getMessage(), Toast.LENGTH_SHORT).show();
                 resultado = false;
             }
