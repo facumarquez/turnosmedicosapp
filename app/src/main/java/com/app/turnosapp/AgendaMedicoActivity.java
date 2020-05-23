@@ -12,6 +12,7 @@ import android.widget.Spinner;
 public class AgendaMedicoActivity extends AppCompatActivity {
     private Spinner meses;
     private Spinner anios;
+    private Button verAgenda;
     private Button verPerfil;
 
     @Override
@@ -21,6 +22,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
 
         meses = (Spinner)findViewById(R.id.spMes);
         anios = (Spinner)findViewById(R.id.spAnio);
+        verAgenda = (Button)findViewById(R.id.btnAgenda);
         verPerfil = (Button)findViewById(R.id.btnPerfil);
 
         ArrayAdapter<CharSequence> adapterMeses = ArrayAdapter.createFromResource(this,
@@ -34,6 +36,13 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         anios.setAdapter(adapterAnios);
 
         //Botones
+        verAgenda.setOnClickListener(new View.OnClickListener(){
+            public void onClick(android.view.View view){
+                Intent intent = new Intent(AgendaMedicoActivity.this, AgendaMedicoFechaActivity.class);
+                startActivity(intent);
+            }
+        });
+
         verPerfil.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
                 Intent intent = new Intent(AgendaMedicoActivity.this, Usuario_verPerfil.class);
