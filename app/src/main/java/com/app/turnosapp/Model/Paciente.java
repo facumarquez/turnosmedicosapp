@@ -1,7 +1,10 @@
 package com.app.turnosapp.Model;
 
-public class Medico {
-    private int idUsuario;
+import java.util.ArrayList;
+
+public class Paciente {
+
+    private Long id;
     private String nombre;
     private String apellido;
     private String usuario;
@@ -10,14 +13,15 @@ public class Medico {
     private String sexo;
     private String fecha_nacimiento;
     private String telefono;
-    private String legajo;
+    private String documento;
+    private Boolean cuotaAlDia;
 
-    public int getIdUsuario() {
-        return idUsuario;
+    public Long getId() {
+        return id;
     }
 
-    public void setIdUsuario(int idUsuario) {
-        this.idUsuario = idUsuario;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNombre() {
@@ -84,18 +88,26 @@ public class Medico {
         this.telefono = telefono;
     }
 
-    public String getLegajo() {
-        return legajo;
+    public String getDocumento() {
+        return documento;
     }
 
-    public void setLegajo(String legajo) {
-        this.legajo = legajo;
+    public void setDocumento(String documento) {
+        this.documento = documento;
+    }
+
+    public Boolean getCuotaAlDia() {
+        return cuotaAlDia;
+    }
+
+    public void setCuotaAlDia(Boolean cuotaAlDia) {
+        this.cuotaAlDia = cuotaAlDia;
     }
 
     @Override
     public String toString() {
-        return "Medico{" +
-                "idUsuario=" + idUsuario +
+        return "Paciente{" +
+                "id=" + id +
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", usuario='" + usuario + '\'' +
@@ -104,11 +116,8 @@ public class Medico {
                 ", sexo='" + sexo + '\'' +
                 ", fecha_nacimiento='" + fecha_nacimiento + '\'' +
                 ", telefono='" + telefono + '\'' +
-                ", legajo='" + legajo + '\'' +
+                ", documento='" + documento + '\'' +
+                ", cuotaAlDia=" + cuotaAlDia +
                 '}';
-    }
-
-    public String getFullname() {
-        return this.nombre+", "+this.apellido;
     }
 }

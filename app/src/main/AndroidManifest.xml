@@ -22,7 +22,6 @@
         <activity android:name=".Usuario_verPerfil" />
         <activity android:name=".AltaTurno" />
         <activity android:name=".AltaDeTurno" />
-        <activity android:name=".HomeActivity" />
         <activity android:name=".AgendaMedicoActivity" />
         <activity android:name=".AgendaMedicoFechaActivity" />
         <activity android:name=".AgendaMedicoHorarioActivity" />

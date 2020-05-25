@@ -13,10 +13,7 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.app.turnosapp.Interface.TurnosAPI;
-import com.app.turnosapp.Model.Turnos;
 import com.app.turnosapp.Model.Usuario;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -56,12 +53,12 @@ public class MainActivity extends AppCompatActivity {
                     if (perfiles.getSelectedItem().toString().toLowerCase().equals("paciente")){
                         intent = new Intent(MainActivity.this, Paciente_HomeActivity.class);
                         //intent = new Intent(MainActivity.this, HomeActivity.class);
-                        intent.putExtra("usuario",usuario.getText().toString());
+                        intent.putExtra("userID",usuario.getText().toString());
                         startActivity(intent);
                     }
                     if (perfiles.getSelectedItem().toString().toLowerCase().equals("medico")){
                         intent = new Intent(MainActivity.this, AgendaMedicoActivity.class);
-                        intent.putExtra("usuario",usuario.getText().toString());
+                        intent.putExtra("userID",usuario.getText().toString());
                         startActivity(intent);
                     }
                 }

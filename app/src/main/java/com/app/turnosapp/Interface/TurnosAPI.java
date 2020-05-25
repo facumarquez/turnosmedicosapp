@@ -1,7 +1,7 @@
 package com.app.turnosapp.Interface;
 import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.Medico;
-import com.app.turnosapp.Model.Turnos;
+import com.app.turnosapp.Model.Turno;
 import com.app.turnosapp.Model.Usuario;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import retrofit2.http.Path;
 public interface TurnosAPI {
     //Para pruebas
     @GET("posts")
-    Call<List<Turnos>> getTurnos();
+    Call<List<Turno>> getTurnos();
 
     //TurnosAPI
     @GET("Usuarios/{username}/{password}/{tipo}")
@@ -23,4 +23,7 @@ public interface TurnosAPI {
 
     @GET("Especialidades/{especialidad}/Medicos")
     Call<List<Medico>> getMedicosPorEspecialidad(@Path("especialidad") String especialidad);
+
+    @GET("AgendaPacientes/Pacientes/{idPaciente}/TurnosPendientes")
+    Call<List<Turno>> getTurnosPaciente(@Path("idPaciente") String idPaciente);
 }
