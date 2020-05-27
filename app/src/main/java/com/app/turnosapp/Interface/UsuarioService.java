@@ -13,6 +13,9 @@ public interface UsuarioService {
     @GET("Usuarios/{idUsuario}")
     Call<Usuario> getUsuarioPorID(@Path("idUsuario") long idUsuario);
 
+    @GET("Usuarios/NombreUsuario/{nombreUsuario}")
+    Call<Usuario> getUsuarioPorNombre(@Path("nombreUsuario") String nombreUsuario);
+
     @PUT("Usuarios/{idUsuario}")
     Call<Usuario> actualizarUsuario(@Path("idUsuario") long idUsuario, @Body Usuario usuario);
 }
