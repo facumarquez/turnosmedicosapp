@@ -33,17 +33,25 @@ public class AgendaMedicoActivity extends AppCompatActivity {
 
     private Usuario usuario;
     private AgendaMedico agendaMedico;
-
+    String nombreUsuario;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_agenda_medico);
 
-        Intent intentLogin = getIntent();
+        if(nombreUsuario == null) {
+            Bundle extras = getIntent().getExtras();
+            if (extras != null) {
+                nombreUsuario = extras.getString("userID");
+
+            }
+        }
+        obtenerUsuario(nombreUsuario);
+        //Intent intentLogin = getIntent();
         //TODO: poner el id posta
-        long idUsuario = 1; //intent.getStringExtra("usuario");
-        obtenerUsuario(idUsuario);
+        //String nombreUsuario = intentLogin.getStringExtra("userID");
+
 
 
         spMeses = (Spinner) findViewById(R.id.spMes);
@@ -84,13 +92,14 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         btnPerfil.setOnClickListener(new View.OnClickListener() {
             public void onClick(android.view.View view) {
                 Intent intent = new Intent(AgendaMedicoActivity.this, Usuario_verPerfil.class);
-                intent.putExtra("usuario", (Serializable) usuario);
+                obtenerUsuario(nombreUsuario);
+                intent.putExtra("usuario", (Serializable)usuario);
                 startActivity(intent);
             }
         });
     }
 
-    private void obtenerUsuario(long idUsuario) {
+    private void obtenerUsuario(String nombreUsuario) {
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.apiTurnosURL))
                 .addConverterFactory(GsonConverterFactory.create())
@@ -98,7 +107,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
 
         UsuarioService usuarioService = retrofit.create(UsuarioService.class);
 
-        Call<Usuario> call = usuarioService.getUsuarioPorID(idUsuario);
+        Call<Usuario> call = usuarioService.getUsuarioPorNombre(nombreUsuario);
         call.enqueue(new Callback<Usuario>() {
             @Override
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {
