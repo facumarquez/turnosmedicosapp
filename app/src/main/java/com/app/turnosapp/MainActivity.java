@@ -52,15 +52,12 @@ public class MainActivity extends AppCompatActivity {
                     Intent intent = null;
                     if (perfiles.getSelectedItem().toString().toLowerCase().equals("paciente")){
                         intent = new Intent(MainActivity.this, Paciente_HomeActivity.class);
-                        //intent = new Intent(MainActivity.this, HomeActivity.class);
-                        intent.putExtra("userID",usuario.getText().toString());
-                        startActivity(intent);
                     }
                     if (perfiles.getSelectedItem().toString().toLowerCase().equals("medico")){
                         intent = new Intent(MainActivity.this, AgendaMedicoActivity.class);
-                        intent.putExtra("userID",usuario.getText().toString());
-                        startActivity(intent);
                     }
+                    intent.putExtra("userID",usuario.getText().toString());
+                    startActivity(intent);
                 }
             }
         });
