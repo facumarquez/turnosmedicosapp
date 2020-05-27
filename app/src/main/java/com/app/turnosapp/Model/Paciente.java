@@ -1,8 +1,9 @@
 package com.app.turnosapp.Model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class Paciente extends Usuario {
+public class Paciente extends Usuario implements Serializable {
 
     private String documento;
     private Boolean cuotaAlDia;
