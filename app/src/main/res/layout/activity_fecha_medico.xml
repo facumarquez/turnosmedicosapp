@@ -20,7 +20,7 @@
             android:textSize="20dp" />
 
         <Spinner
-            android:id="@+id/spinnerEspecialidad"
+            android:id="@+id/spEspecialidad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="20dp"/>
