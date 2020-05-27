@@ -1,6 +1,9 @@
 package com.app.turnosapp.Model;
 
-public class Usuario {
+import java.io.Serializable;
+
+public class Usuario implements Serializable {
+    private long idUsuario;
     private String usuario;
     private String password;
     private String nombre;
@@ -8,6 +11,15 @@ public class Usuario {
     private String mail;
     private String fecha_nacimiento;
     private char sexo;
+    private String telefono;
+
+    public long getIdUsuario() {
+        return idUsuario;
+    }
+
+    public void setIdUsuario(long idUsuario) {
+        this.idUsuario = idUsuario;
+    }
 
     public String getUsuario() {
         return usuario;
@@ -65,16 +77,26 @@ public class Usuario {
         this.sexo = sexo;
     }
 
+    public String getTelefono() {
+        return telefono;
+    }
+
+    public void setTelefono(String telefono) {
+        this.telefono = telefono;
+    }
+
     @Override
     public String toString() {
         return "Usuario{" +
-                "usuario='" + usuario + '\'' +
+                "idUsuario='" + idUsuario + '\'' +
+                ", usuario='" + usuario + '\'' +
                 ", password='" + password + '\'' +
                 ", nombre='" + nombre + '\'' +
                 ", apellido='" + apellido + '\'' +
                 ", mail='" + mail + '\'' +
                 ", fecha_nacimiento='" + fecha_nacimiento + '\'' +
                 ", sexo=" + sexo +
+                ", telefono=" + telefono +
                 '}';
     }
 }
