@@ -48,7 +48,8 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
 
         especialidades = (Spinner) findViewById(R.id.spEspecialidad);
-        getEspecialidades();
+        //TODO:poner idMedico verdadero
+        getEspecialidadesDelMedico(1);
 
         modHorarios = (Button)findViewById(R.id.buttonModHorarios);
 
@@ -61,15 +62,15 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         });
     }
 
-    private void getEspecialidades(){
+    private void getEspecialidadesDelMedico(long idMedico){
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.apiTurnosURL))
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
         MedicoService medicoService = retrofit.create(MedicoService.class);
-        //TODO:poner id veradero
-        Call<List<Especialidad>> call = medicoService.getEspecialidadesPorMedico(1);
+
+        Call<List<Especialidad>> call = medicoService.getEspecialidadesPorMedico(idMedico);
         call.enqueue(new Callback<List<Especialidad>>() {
             @Override
             public void onResponse(Call<List<Especialidad>> call, Response<List<Especialidad>> response) {
