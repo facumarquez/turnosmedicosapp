@@ -28,6 +28,7 @@ public class Usuario_verPerfil extends AppCompatActivity {
     private EditText etTelefono;
     private Button btnAtras;
     private Button btnActualizarDatos;
+    //private String strUsuario;
     private Usuario nuevoUsuario;
 
     @Override
@@ -36,6 +37,9 @@ public class Usuario_verPerfil extends AppCompatActivity {
         setContentView(R.layout.activity_usuario_ver_perfil);
 
         Intent intentAgendaMedico = getIntent();
+
+        //strUsuario = intentAgendaMedico.getStringExtra("usuario");
+        //obtenerUsuario(strUsuario);
         nuevoUsuario = (Usuario)intentAgendaMedico.getSerializableExtra(("usuario"));
 
         etMail = (EditText) findViewById(R.id.etEmail);
@@ -52,15 +56,19 @@ public class Usuario_verPerfil extends AppCompatActivity {
                 nuevoUsuario.setMail(etMail.getText().toString().trim());
                 nuevoUsuario.setTelefono((etTelefono.getText().toString().trim()));
                 actualizarUsuario(nuevoUsuario.getIdUsuario());
-                Intent intent = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
-                startActivity(intent);
+                etMail.setText(nuevoUsuario.getMail().trim());
+                etTelefono.setText(nuevoUsuario.getTelefono().trim());
+                finish();
+                //Intent intent = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
+                //startActivity(intent);
             }
         });
 
         btnAtras.setOnClickListener(new View.OnClickListener() {
             public void onClick(android.view.View view) {
-                Intent intent = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
-                startActivity(intent);
+                finish();
+                //Intent intent = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
+                //startActivity(intent);
             }
         });
 
@@ -92,4 +100,32 @@ public class Usuario_verPerfil extends AppCompatActivity {
             }
         });
     }
+
+    /*
+    private void obtenerUsuario(String nombreUsuario) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        UsuarioService usuarioService = retrofit.create(UsuarioService.class);
+
+        Call<Usuario> call = usuarioService.getUsuarioPorNombre(nombreUsuario);
+        call.enqueue(new Callback<Usuario>() {
+            @Override
+            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(Usuario_verPerfil.this, "No se encontró el usuario", Toast.LENGTH_SHORT).show();
+                } else {
+                    nuevoUsuario = response.body();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Usuario> call, Throwable t) {
+                Toast.makeText(Usuario_verPerfil.this, "Error al obtener el usuario", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    */
 }
