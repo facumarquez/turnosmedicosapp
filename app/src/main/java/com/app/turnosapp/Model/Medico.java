@@ -1,15 +1,9 @@
 package com.app.turnosapp.Model;
 
-public class Medico {
-    private int idUsuario;
-    private String nombre;
-    private String apellido;
-    private String usuario;
-    private String password;
-    private String mail;
-    private String sexo;
-    private String fecha_nacimiento;
-    private String telefono;
+import java.io.Serializable;
+
+public class Medico implements Serializable {
+    private int id_usuario;
     private String legajo;
 
     public int getIdUsuario() {
