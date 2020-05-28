@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.provider.SyncStateContract;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -13,12 +12,10 @@ import android.widget.Toast;
 
 import com.app.turnosapp.Callbacks.IAgendaMedicoCallback;
 import com.app.turnosapp.Callbacks.IMedicoCallback;
-import com.app.turnosapp.Callbacks.IUsuarioCallback;
 import com.app.turnosapp.Helpers.FechaHelper;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Interface.MedicoService;
-import com.app.turnosapp.Interface.UsuarioService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.Medico;
 import com.app.turnosapp.Model.Usuario;
@@ -29,8 +26,6 @@ import java.util.Date;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AgendaMedicoActivity extends AppCompatActivity {
 
@@ -78,6 +73,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         //Botones
         btnAgenda.setOnClickListener(new View.OnClickListener() {
             public void onClick(android.view.View view) {
+
                 final long idMedico = medico.getIdUsuario();
                 final int mes = Integer.valueOf(spMeses.getSelectedItemPosition()+1);
                 final int anio= Integer.valueOf(spAnios.getSelectedItem().toString());
@@ -105,38 +101,15 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         btnPerfil.setOnClickListener(new View.OnClickListener() {
             public void onClick(android.view.View view) {
 
-                 obtenerUsuario(nombreUsuario, new IUsuarioCallback() {
+                 obtenerMedico(nombreUsuario, new IMedicoCallback() {
                     @Override
-                    public void getUsuario(Usuario user) {
-                        usuario = user;
+                    public void getMedico(Medico user) {
+                        medico = user;
                         Intent intent = new Intent(AgendaMedicoActivity.this, Usuario_verPerfil.class);
-                        intent.putExtra("usuario", (Serializable)usuario);
+                        intent.putExtra("usuario", (Serializable)(Usuario)medico);
                         startActivity(intent);
                     }
                 });
-            }
-        });
-    }
-
-    private void obtenerUsuario(String nombreUsuario, final IUsuarioCallback callback) {
-
-        UsuarioService usuarioService = RetrofitConnection.obtenerConexion
-                (getString(R.string.apiTurnosURL)).create(UsuarioService.class);
-
-        Call<Usuario> call = usuarioService.getUsuarioPorNombre(nombreUsuario);
-        call.enqueue(new Callback<Usuario>() {
-            @Override
-            public void onResponse(Call<Usuario> call, Response<Usuario> response) {
-                if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoActivity.this, "No se encontró el usuario", Toast.LENGTH_SHORT).show();
-                } else {
-                    callback.getUsuario(response.body());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Usuario> call, Throwable t) {
-                Toast.makeText(AgendaMedicoActivity.this, "Error al obtener el usuario", Toast.LENGTH_SHORT).show();
             }
         });
     }
