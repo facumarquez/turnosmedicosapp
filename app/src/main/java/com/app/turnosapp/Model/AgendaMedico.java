@@ -48,4 +48,11 @@ public class AgendaMedico implements Serializable {
     public void setFechaCreacion(String fechaCreacion) {
         this.fechaCreacion = fechaCreacion;
     }
+
+    public AgendaMedico(int mes,int anio, Medico medico, String fechaCreacion){
+        this.mes = mes;
+        this.anio = anio;
+        this.medico = medico;
+        this.fechaCreacion = fechaCreacion;
+    }
 }
