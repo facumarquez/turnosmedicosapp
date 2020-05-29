@@ -84,12 +84,12 @@
         >
 
         <Button
-            android:id="@+id/buttonVolver"
+            android:id="@+id/buttonAtras"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
             android:layout_marginTop="15dp"
-            android:text="Volver"/>
+            android:text="ATRAS"/>
 
         <Button
             android:id="@+id/buttonConfirmar"

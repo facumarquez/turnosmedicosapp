@@ -6,15 +6,12 @@ import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -25,8 +22,6 @@ import android.os.Bundle;
 import java.io.LineNumberInputStream;
 
 public class AgendaMedicoHorarioActivity extends AppCompatActivity {
-
-    private Button volverAtras;
 
     ListView listView;
     String mTitle[] = {"04/05/2020", "11/05/2020", "18/05/2020", "25/05/2020"};
@@ -41,8 +36,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_horario_medico);
-
-        volverAtras = (Button)findViewById(R.id.buttonVolver);
 
         listView = findViewById(R.id.listView);
         // now create an adapter class
@@ -61,16 +54,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             }
         });
         // so item click is done now check list view
-
-        //Botones
-        volverAtras.setOnClickListener(new View.OnClickListener(){
-            public void onClick(android.view.View view){
-                Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
     }
 
     class MyAdapter extends ArrayAdapter<String> {

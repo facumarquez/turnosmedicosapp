@@ -34,18 +34,11 @@
         android:layout_marginLeft="35dp"
         android:layout_marginTop="20dp"/>
 
-    <!--<CalendarView
+    <CalendarView
         android:id="@+id/calendarMedico"
         android:layout_width="wrap_content"
         android:layout_height="302dp"
         android:layout_gravity="center" />
-    -->
-
-    <sun.bob.mcalendarview.MCalendarView
-        android:layout_width="wrap_content"
-        android:layout_height="302dp"
-        tools:context=".MainActivity"
-        android:id="@+id/calendar"/>
 
     <Button
         android:id="@+id/buttonModHorarios"
