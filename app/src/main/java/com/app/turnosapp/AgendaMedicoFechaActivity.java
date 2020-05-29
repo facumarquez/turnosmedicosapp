@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.MedicoService;
 import com.app.turnosapp.Model.AgendaMedico;
@@ -23,15 +24,21 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+import sun.bob.mcalendarview.MCalendarView;
+import sun.bob.mcalendarview.listeners.OnDateClickListener;
+import sun.bob.mcalendarview.vo.DateData;
+import sun.bob.mcalendarview.vo.MarkedDates;
 
 public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
+    private MCalendarView calendarView;
     private Spinner spEspecialidades;
     private Button modHorarios;
 
     private AgendaMedico agendaMedico;
     private List<Especialidad> listaEspecialidades;
     private ArrayList<String> listaFormateadaEspecialidades = new ArrayList<String>();
+    private ArrayList<String> listaFechasCalendario =  new ArrayList<String>();
 
 
     @Override
@@ -46,13 +53,47 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
         getEspecialidadesDelMedico(agendaMedico.getMedico().getIdUsuario());
 
+        calendarView = (MCalendarView) findViewById(R.id.mcvFechasMedico);
+        calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
+
         modHorarios = (Button)findViewById(R.id.buttonModHorarios);
 
         //Botones
         modHorarios.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
+
+                //TODO:ver como capturar las fechas
+
                 Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        calendarView.setOnDateClickListener(new OnDateClickListener() {
+            @Override
+            public void onDateClick(View view, DateData date) {
+                boolean Marcado = false;
+                MarkedDates markedDates = calendarView.getMarkedDates();
+                ArrayList markData = markedDates.getAll();
+                for (int i = 0; i < markData.size(); i++) {
+                    if (markData.get(i) == date) {
+                        Marcado = true;
+                    }
+                }
+                String anio = StringHelper.rellenarConCeros(String.valueOf(date.getYear()),4);
+                String mes = StringHelper.rellenarConCeros(String.valueOf(date.getMonth()),2);
+                String dia = StringHelper.rellenarConCeros(String.valueOf(date.getDay()),2);
+                String fechaFormatoJapones = anio + mes + dia;
+
+                if (Marcado) {
+                    calendarView.unMarkDate(date);
+
+                    listaFechasCalendario.remove(fechaFormatoJapones);
+
+                } else {
+                    calendarView.markDate(date);
+                    listaFechasCalendario.add(fechaFormatoJapones);
+                }
             }
         });
     }

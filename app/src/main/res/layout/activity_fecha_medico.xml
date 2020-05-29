@@ -31,8 +31,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Seleccionar todo el mes"
-        android:layout_marginLeft="35dp"
-        android:layout_marginTop="20dp"/>
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="30dp"/>
 
     <!--<CalendarView
         android:id="@+id/calendarMedico"
@@ -42,36 +42,39 @@
     -->
 
     <sun.bob.mcalendarview.MCalendarView
-        android:layout_width="wrap_content"
-        android:layout_height="302dp"
+        android:layout_width="350dp"
+        android:layout_height="400dp"
+        android:layout_marginLeft="30dp"
         tools:context=".MainActivity"
-        android:id="@+id/calendar"/>
+        android:id="@+id/mcvFechasMedico"/>
 
-    <Button
-        android:id="@+id/buttonModHorarios"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="Ver/Modificar\nHorarios"/>
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        >
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/buttonModHorarios"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20dp"
+            android:text="Ver/Modificar\nHorarios" />
 
         <Button
             android:id="@+id/buttonEliHorarios"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="89dp"
-            android:text="Eliminar\nHorarios"/>
+            android:layout_marginLeft="20dp"
+            android:text="Eliminar\nHorarios" />
 
         <Button
             android:id="@+id/buttonVerTurnos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Ver\nTurnos"/>
+            android:layout_marginStart="20dp"
+            android:text="Ver\nTurnos" />
 
     </LinearLayout>
 
