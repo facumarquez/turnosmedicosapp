@@ -12,7 +12,7 @@ import android.widget.Toast;
 
 import com.app.turnosapp.Callbacks.IAgendaMedicoCallback;
 import com.app.turnosapp.Callbacks.IMedicoCallback;
-import com.app.turnosapp.Helpers.FechaHelper;
+import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Interface.MedicoService;
@@ -21,6 +21,7 @@ import com.app.turnosapp.Model.Medico;
 import com.app.turnosapp.Model.Usuario;
 
 import java.io.Serializable;
+import java.util.Calendar;
 import java.util.Date;
 
 import retrofit2.Call;
@@ -157,7 +158,15 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
                 (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
 
-        String fechaCreacion = FechaHelper.convertirFechaAFormatoJapones(new Date());
+        Calendar calendario = Calendar.getInstance();
+        calendario.setTime(new Date());
+
+        String anioCreacion = StringHelper.rellenarConCeros(String.valueOf(calendario.get(Calendar.YEAR)),4);
+        //Arranca de cero el indice por eso sumo 1
+        String mesCreacion = StringHelper.rellenarConCeros(String.valueOf(calendario.get(Calendar.MONTH) + 1),2);
+        String diaCreacion =  StringHelper.rellenarConCeros(String.valueOf(calendario.get(Calendar.DAY_OF_MONTH)),2);
+
+        String fechaCreacion = anioCreacion + mesCreacion + diaCreacion;
 
         agendaMedico = new AgendaMedico(mes,anio,medico,fechaCreacion);
 
