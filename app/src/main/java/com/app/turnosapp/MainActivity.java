@@ -79,8 +79,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         if (perfiles.getSelectedItem().toString().toLowerCase().equals("medico")){
                             intent = new Intent(MainActivity.this, AgendaMedicoActivity.class);
                         }
-                        //intent.putExtra("userID",usuario.getText().toString());
-                        //intent.putExtra("userID",Integer.toString(response.body().getIdUsuario()));
                         intent.putExtra("usuario", (Serializable) response.body());
                         startActivity(intent);
                     }
