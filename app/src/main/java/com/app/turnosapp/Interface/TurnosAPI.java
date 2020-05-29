@@ -25,5 +25,5 @@ public interface TurnosAPI {
     Call<List<Medico>> getMedicosPorEspecialidad(@Path("especialidad") String especialidad);
 
     @GET("AgendaPacientes/Pacientes/{idPaciente}/TurnosPendientes")
-    Call<List<Turno>> getTurnosPaciente(@Path("idPaciente") String idPaciente);
+    Call<List<Turno>> getTurnosPaciente(@Path("idPaciente") Long idPaciente);
 }

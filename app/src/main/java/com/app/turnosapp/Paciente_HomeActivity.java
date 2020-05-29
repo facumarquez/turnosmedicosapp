@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.app.turnosapp.Interface.TurnosAPI;
 import com.app.turnosapp.Model.Turno;
+import com.app.turnosapp.Model.Usuario;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
     List<Turno> listaTurnos;
     String userID;
     ListView listView;
+    Usuario usuario;
 
 
     @Override
@@ -41,15 +43,14 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         //Recibo el dato de la pantalla anterior
         Bundle extras = getIntent().getExtras();
         if(extras != null){
-            userID = extras.getString("userID");
+            usuario = (Usuario) extras.getSerializable("usuario");
         }
 
-        //getTurnosPaciente(userID);
-        getTurnosPaciente("1");
+        getTurnosPaciente(usuario.getIdUsuario());
     }
 
     //Hace una llamada a la API, obtiene los turnos del paciente y los muestra en la lista
-    private void getTurnosPaciente(String idPaciente){
+    private void getTurnosPaciente(long idPaciente){
         List<Turno> listaTurnos;
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.apiTurnosURL))
@@ -80,11 +81,8 @@ public class Paciente_HomeActivity extends AppCompatActivity {
     private void cargarDatos(List<Turno> turnos) {
 
 
-        String mTitle[] = {"20/05/2020 10:30hs", "21/05/2020 10:30hs", "22/05/2020 10:30hs", "23/05/2020 10:30hs", "24/05/2020 10:30hs", "21/05/2020 10:30hs", "22/05/2020 10:30hs", "23/05/2020 10:30hs", "24/05/2020 10:30hs"};
-        String mDescription[] = {"Odontología", "Pediatría", "Pediatría", "Ginecología", "Oftalmología", "Pediatría", "Pediatría", "Ginecología", "Oftalmología"};
-
         listView = findViewById(R.id.listView);
-        MyAdapter adapter = new MyAdapter(this, mTitle, mDescription,turnos, R.drawable.confirm,R.drawable.bin);
+        MyAdapter adapter = new MyAdapter(this, turnos, R.drawable.confirm,R.drawable.bin);
         listView.setAdapter(adapter);
     }
 
@@ -95,17 +93,13 @@ public class Paciente_HomeActivity extends AppCompatActivity {
     class MyAdapter extends ArrayAdapter<Turno> {
 
         Context context;
-        String rTitle[];
-        String rDescription[];
         List<Turno> turnos;
         int rImgs_confirm;
         int rImgs_delete;
 
-        MyAdapter (Context c, String title[], String description[],List<Turno> turnos, int imgs_confirm,int imgs_delete) {
+        MyAdapter (Context c, List<Turno> turnos, int imgs_confirm,int imgs_delete) {
             super(c, R.layout.paciente_item_turno, R.id.textView1, turnos);
             this.context = c;
-            this.rTitle = title;
-            this.rDescription = description;
             this.rImgs_confirm = imgs_confirm;
             this.rImgs_delete = imgs_delete;
             this.turnos=turnos;
@@ -148,11 +142,11 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         }
 
         private void borrarTurno(final int position) {
-            Toast.makeText(Paciente_HomeActivity.this, "Borrar: "+position+" - "+rDescription[position] , Toast.LENGTH_SHORT).show();
+            Toast.makeText(Paciente_HomeActivity.this, "Borrar: "+position+" - "+turnos.get(position) , Toast.LENGTH_SHORT).show();
         }
 
         private void confirmarTurno(final int position) {
-            Toast.makeText(Paciente_HomeActivity.this, "Confirmar: "+position+" - "+rDescription[position] , Toast.LENGTH_SHORT).show();
+            Toast.makeText(Paciente_HomeActivity.this, "Confirmar: "+position+" - "+turnos.get(position), Toast.LENGTH_SHORT).show();
         }
     }
     }
