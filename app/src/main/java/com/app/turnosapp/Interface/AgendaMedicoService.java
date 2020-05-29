@@ -11,8 +11,8 @@ import retrofit2.http.Path;
 public interface AgendaMedicoService {
 
     @GET("AgendaMedicos/{idMedico}/{mes}/{anio}")
-    Call<AgendaMedico> getAgendaMedico(@Path("idMedico") long idMedico,
-                                       @Path("mes") int mes, @Path("anio") int anio);
+    Call<AgendaMedico> getAgendaMedico(@Path("idMedico") long idMedico, @Path("mes") int mes,
+                                       @Path("anio") int anio);
 
     @POST("AgendaMedicos")
     Call<AgendaMedico> crearAgendaMedico(@Body AgendaMedico agenda);

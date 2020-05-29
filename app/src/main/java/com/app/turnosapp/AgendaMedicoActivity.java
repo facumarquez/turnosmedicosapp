@@ -37,7 +37,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
     private Usuario usuario;
     private Medico medico;
     private AgendaMedico agendaMedico;
-    String nombreUsuario;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,12 +45,12 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_agenda_medico);
 
         Intent intentLogin = getIntent();
-        nombreUsuario = intentLogin.getStringExtra("userID");
+        usuario = (Usuario) intentLogin.getSerializableExtra("usuario");
 
-        obtenerMedico(nombreUsuario, new IMedicoCallback() {
+        obtenerMedico(usuario.getIdUsuario(), new IMedicoCallback() {
             @Override
             public void getMedico(Medico user) {
-                medico = (Medico) user;
+                medico = user;
             }
         });
 
@@ -71,14 +71,13 @@ public class AgendaMedicoActivity extends AppCompatActivity {
 
 
         //Botones
-        btnAgenda.setOnClickListener(new View.OnClickListener() {
+        btnAgenda.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view) {
 
-                final long idMedico = medico.getIdUsuario();
-                final int mes = Integer.valueOf(spMeses.getSelectedItemPosition()+1);
-                final int anio= Integer.valueOf(spAnios.getSelectedItem().toString());
+                final int mes = spMeses.getSelectedItemPosition() + 1;
+                final int anio= Integer.parseInt(spAnios.getSelectedItem().toString());
 
-                obtenerAgenda(idMedico, mes, anio, new IAgendaMedicoCallback() {
+                obtenerAgenda(medico.getIdUsuario(), mes, anio, new IAgendaMedicoCallback() {
                     @Override
                     public void getAgendaMedico(AgendaMedico agenda) {
                         agendaMedico = agenda;
@@ -100,26 +99,19 @@ public class AgendaMedicoActivity extends AppCompatActivity {
 
         btnPerfil.setOnClickListener(new View.OnClickListener() {
             public void onClick(android.view.View view) {
-
-                 obtenerMedico(nombreUsuario, new IMedicoCallback() {
-                    @Override
-                    public void getMedico(Medico user) {
-                        medico = user;
-                        Intent intent = new Intent(AgendaMedicoActivity.this, Usuario_verPerfil.class);
-                        intent.putExtra("usuario", (Serializable)(Usuario)medico);
-                        startActivity(intent);
-                    }
-                });
+                Intent intent = new Intent(AgendaMedicoActivity.this, Usuario_verPerfil.class);
+                intent.putExtra("usuario", (Serializable) usuario);
+                startActivity(intent);
             }
         });
     }
 
-    private void obtenerMedico(String nombreUsuario, final IMedicoCallback callback) {
+    private void obtenerMedico(long idMedico, final IMedicoCallback callback) {
 
         MedicoService medicoService = RetrofitConnection.obtenerConexion
                                     (getString(R.string.apiTurnosURL)).create(MedicoService.class);
 
-        Call<Medico> call = medicoService.getMedicoPorNombre(nombreUsuario);
+        Call<Medico> call = medicoService.getMedicoPorID(idMedico);
         call.enqueue(new Callback<Medico>() {
             @Override
             public void onResponse(Call<Medico> call, Response<Medico> response) {
@@ -142,7 +134,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
                 (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
 
-        Call<AgendaMedico> call = agendaMedicoService.getAgendaMedico(idMedico,mes,anio);
+        Call<AgendaMedico> call = agendaMedicoService.getAgendaMedico(idMedico, mes,anio);
         call.enqueue(new Callback<AgendaMedico>() {
             @Override
             public void onResponse(Call<AgendaMedico> call, Response<AgendaMedico> response) {

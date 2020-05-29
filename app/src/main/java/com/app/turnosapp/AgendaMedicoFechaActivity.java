@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.EspecialidadService;
 import com.app.turnosapp.Interface.MedicoService;
 import com.app.turnosapp.Interface.TurnosAPI;
@@ -63,12 +64,9 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     }
 
     private void getEspecialidadesDelMedico(long idMedico){
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(getString(R.string.apiTurnosURL))
-                .addConverterFactory(GsonConverterFactory.create())
-                .build();
 
-        MedicoService medicoService = retrofit.create(MedicoService.class);
+        MedicoService medicoService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(MedicoService.class);
 
         Call<List<Especialidad>> call = medicoService.getEspecialidadesPorMedico(idMedico);
         call.enqueue(new Callback<List<Especialidad>>() {

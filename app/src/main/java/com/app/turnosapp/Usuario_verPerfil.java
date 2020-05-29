@@ -9,9 +9,12 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.app.turnosapp.Callbacks.IUsuarioCallback;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.UsuarioService;
 import com.app.turnosapp.Model.Usuario;
+
+import java.io.Serializable;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -46,8 +49,15 @@ public class Usuario_verPerfil extends AppCompatActivity {
             public void onClick(android.view.View view) {
                 nuevoUsuario.setMail(etMail.getText().toString().trim());
                 nuevoUsuario.setTelefono((etTelefono.getText().toString().trim()));
-                actualizarUsuario(nuevoUsuario.getIdUsuario());
-                finish();
+                actualizarUsuario(nuevoUsuario.getIdUsuario(), new IUsuarioCallback() {
+                    @Override
+                    public void getUsuario(Usuario user) {
+                        nuevoUsuario = user;
+                        Intent intentAgendaMedico = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
+                        intentAgendaMedico.putExtra("usuario", (Serializable) nuevoUsuario);
+                        startActivity(intentAgendaMedico);
+                    }
+                });
             }
         });
 
@@ -58,7 +68,7 @@ public class Usuario_verPerfil extends AppCompatActivity {
         });
     }
 
-    private void actualizarUsuario(long idUsuario) {
+    private void actualizarUsuario(long idUsuario, final IUsuarioCallback callback) {
 
         UsuarioService usuarioService = RetrofitConnection.obtenerConexion
                 (getString(R.string.apiTurnosURL)).create(UsuarioService.class);
@@ -71,7 +81,7 @@ public class Usuario_verPerfil extends AppCompatActivity {
                     Toast.makeText(Usuario_verPerfil.this, "No se pudo actualizar el usuario", Toast.LENGTH_SHORT).show();
                 } else {
                     Toast.makeText(Usuario_verPerfil.this, "Se han actualizado los datos", Toast.LENGTH_SHORT).show();
-                    nuevoUsuario = response.body();
+                    callback.getUsuario(response.body());
                 }
             }
 

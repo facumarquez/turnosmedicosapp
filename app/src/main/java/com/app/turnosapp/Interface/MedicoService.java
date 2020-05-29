@@ -13,6 +13,6 @@ public interface MedicoService {
     @GET("Medicos/{idMedico}/especialidades")
     Call<List<Especialidad>> getEspecialidadesPorMedico(@Path("idMedico") long idMedico);
 
-    @GET("Medicos/NombreUsuario/{nombreUsuario}")
-    Call<Medico> getMedicoPorNombre(@Path("nombreUsuario") String nombreUsuario);
+    @GET("Medicos/{idMedico}")
+    Call<Medico> getMedicoPorID(@Path("idMedico") long idMedico);
 }
