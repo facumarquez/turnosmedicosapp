@@ -25,6 +25,7 @@
         <activity android:name=".AgendaMedicoActivity" />
         <activity android:name=".AgendaMedicoFechaActivity" />
         <activity android:name=".AgendaMedicoHorarioActivity" />
+        <activity android:name=".AgendaMedicoTurnoActivity"></activity>
     </application>
 
 </manifest>

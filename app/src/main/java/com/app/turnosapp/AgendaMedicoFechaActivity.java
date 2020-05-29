@@ -11,12 +11,9 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.app.turnosapp.Helpers.RetrofitConnection;
-import com.app.turnosapp.Interface.EspecialidadService;
 import com.app.turnosapp.Interface.MedicoService;
-import com.app.turnosapp.Interface.TurnosAPI;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.Especialidad;
-import com.app.turnosapp.Model.Usuario;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,17 +23,15 @@ import java.util.List;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-import retrofit2.Retrofit;
-import retrofit2.converter.gson.GsonConverterFactory;
 
 public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
+    private Spinner spEspecialidades;
+    private Button modHorarios;
+
     private AgendaMedico agendaMedico;
-    private Spinner especialidades;
     private List<Especialidad> listaEspecialidades;
     private ArrayList<String> listaFormateadaEspecialidades = new ArrayList<String>();
-
-    private Button modHorarios;
 
 
     @Override
@@ -48,9 +43,8 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
        agendaMedico = (AgendaMedico)intentAgendaMedico.getSerializableExtra(("agendaMedico"));
 
 
-        especialidades = (Spinner) findViewById(R.id.spEspecialidad);
-        //TODO:poner idMedico verdadero
-        getEspecialidadesDelMedico(1);
+        spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
+        getEspecialidadesDelMedico(agendaMedico.getMedico().getIdUsuario());
 
         modHorarios = (Button)findViewById(R.id.buttonModHorarios);
 
@@ -95,7 +89,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                     //Cargo los datos en el Spinner
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(AgendaMedicoFechaActivity.this,android.R.layout.simple_spinner_item, listaFormateadaEspecialidades);
                     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    especialidades.setAdapter(adapter);
+                    spEspecialidades.setAdapter(adapter);
                 }
             }
             @Override

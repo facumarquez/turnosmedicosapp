@@ -5,6 +5,7 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -23,7 +24,7 @@ import android.os.Bundle;
 
 import java.io.LineNumberInputStream;
 
-public class AgendaMedicoHorarioActivity extends AppCompatActivity {
+public class AgendaMedicoTurnoActivity extends AppCompatActivity {
 
     private Button volverAtras;
 
@@ -39,7 +40,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_horario_medico);
+        setContentView(R.layout.activity_turno_medico);
 
         volverAtras = (Button)findViewById(R.id.buttonVolver);
 
@@ -56,7 +57,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(AgendaMedicoHorarioActivity.this, parent.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(AgendaMedicoTurnoActivity.this, parent.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
             }
         });
         // so item click is done now check list view
@@ -64,10 +65,12 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         //Botones
         volverAtras.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
+                Intent intent = new Intent(AgendaMedicoTurnoActivity.this, AgendaMedicoFechaActivity.class);
                 startActivity(intent);
             }
         });
+
+
     }
 
     class MyAdapter extends ArrayAdapter<String> {
