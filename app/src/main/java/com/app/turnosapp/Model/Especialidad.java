@@ -1,6 +1,8 @@
 package com.app.turnosapp.Model;
 
-public class Especialidad {
+import java.io.Serializable;
+
+public class Especialidad implements Serializable {
     private Long id;
     private String nombre;
 
@@ -22,8 +24,6 @@ public class Especialidad {
 
     @Override
     public String toString() {
-        return "Especialidad{" +
-                "nombre='" + nombre + '\'' +
-                '}';
+        return this.getNombre();
     }
 }

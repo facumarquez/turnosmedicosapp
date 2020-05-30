@@ -2,10 +2,8 @@ package com.app.turnosapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -18,13 +16,13 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import android.os.Bundle;
-
-import java.io.LineNumberInputStream;
+import com.app.turnosapp.Model.AgendaMedicoFecha;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
+    private List<AgendaMedicoFecha> fechasAgenda = new ArrayList<AgendaMedicoFecha>();
     private Button volverAtras;
 
     ListView listView;
@@ -40,6 +38,9 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_horario_medico);
+
+        Intent intentAgendaMedicoFecha = getIntent();
+        fechasAgenda = (List<AgendaMedicoFecha>)intentAgendaMedicoFecha.getSerializableExtra(("fechasAgenda"));
 
         volverAtras = (Button)findViewById(R.id.buttonVolver);
 
