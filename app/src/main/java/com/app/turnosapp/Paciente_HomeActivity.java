@@ -15,6 +15,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.TurnosAPI;
 import com.app.turnosapp.Model.Turno;
 import com.app.turnosapp.Model.Usuario;
@@ -120,7 +121,8 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             // now set our resources on views
             images.setImageResource(rImgs_confirm);
             images2.setImageResource(rImgs_delete);
-            fecha.setText(turnos.get(position).getFechaTurno()+" "+turnos.get(position).getTurnoDesde());
+            String fechaFormateada= StringHelper.convertirFechaAFormato_dd_mm_aaaa(turnos.get(position).getFechaTurno());
+            fecha.setText(fechaFormateada +" "+turnos.get(position).getTurnoDesde());
             especialidad.setText(turnos.get(position).getEspecialidad().getNombre());
             doctor.setText(turnos.get(position).getMedico().getFullname());
 
