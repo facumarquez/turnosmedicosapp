@@ -5,13 +5,17 @@ import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,16 +34,20 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class Paciente_HomeActivity extends AppCompatActivity {
 
-    List<Turno> listaTurnos;
-    String userID;
     ListView listView;
     Usuario usuario;
+    Button altaDeTurno;
+    Button verPerfil;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_paciente__home);
+
+        altaDeTurno = (Button) findViewById(R.id.btAltaTurno);
+        verPerfil = (Button) findViewById(R.id.btVerPerfil);
+
 
         //Recibo el dato de la pantalla anterior
         Bundle extras = getIntent().getExtras();
@@ -48,6 +56,26 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         }
 
         getTurnosPaciente(usuario.getIdUsuario());
+
+        altaDeTurno.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Paciente_HomeActivity.this, AltaDeTurno.class);
+                intent.putExtra("usuario", usuario);
+                startActivity(intent);
+            }
+        });
+
+        verPerfil.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Paciente_HomeActivity.this, Usuario_verPerfil.class);
+                intent.putExtra("usuario", usuario);
+                startActivity(intent);
+            }
+        });
+
+
     }
 
     //Hace una llamada a la API, obtiene los turnos del paciente y los muestra en la lista
@@ -80,15 +108,9 @@ public class Paciente_HomeActivity extends AppCompatActivity {
 
 
     private void cargarDatos(List<Turno> turnos) {
-
-
         listView = findViewById(R.id.listView);
         MyAdapter adapter = new MyAdapter(this, turnos, R.drawable.confirm,R.drawable.bin);
         listView.setAdapter(adapter);
-    }
-
-    public void setListaTurnos(List<Turno> listaTurnos) {
-        this.listaTurnos = listaTurnos;
     }
 
     class MyAdapter extends ArrayAdapter<Turno> {

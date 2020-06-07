@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
-
+/////////////////////////////CREO QUE ESTO SE PUEDE BORRAR TODO
 public class AltaTurno extends AppCompatActivity {
     private CalendarPickerView calendar;
 

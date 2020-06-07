@@ -39,21 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
 
-      <!--<TextView
-            android:id="@+id/tvFechaDesde"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Fecha desde:" />
-
-        <EditText
-            android:id="@+id/etFechaDesde"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Seleccione fecha" />-->
-
-
-        <TextView
+         <TextView
             android:id="@+id/tvHorario"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,9 +56,13 @@
             android:layout_height="316dp"
             android:gravity="center">
 
-            <CalendarView
+            <sun.bob.mcalendarview.MCalendarView
                 android:layout_width="300dp"
-                android:layout_height="300dp" />
+                android:layout_height="350dp"
+                android:layout_marginLeft="0dp"
+                tools:context=".AltaDeTurno"
+                android:id="@+id/mcvFechaTurno"/>
+
         </LinearLayout>
 
         <Button

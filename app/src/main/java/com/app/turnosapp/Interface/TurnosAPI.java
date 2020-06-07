@@ -22,7 +22,7 @@ public interface TurnosAPI {
     Call<List<Especialidad>> getEspecialidades();
 
     @GET("Especialidades/{especialidad}/Medicos")
-    Call<List<Medico>> getMedicosPorEspecialidad(@Path("especialidad") String especialidad);
+    Call<List<Medico>> getMedicosPorEspecialidad(@Path("especialidad") Long especialidad);
 
     @GET("AgendaPacientes/Pacientes/{idPaciente}/TurnosPendientes")
     Call<List<Turno>> getTurnosPaciente(@Path("idPaciente") Long idPaciente);

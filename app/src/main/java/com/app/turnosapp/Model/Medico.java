@@ -15,22 +15,12 @@ public class Medico extends Usuario implements Serializable {
     }
 
     @Override
-    public String toString() {
-        return "Medico{" +
-                "idUsuario=" + this.getIdUsuario() +
-                ", nombre='" + this.getNombre() + '\'' +
-                ", apellido='" + this.getApellido() + '\'' +
-                ", usuario='" + this.getUsuario() + '\'' +
-                ", password='" + this.getPassword() + '\'' +
-                ", mail='" + this.getMail() + '\'' +
-                ", sexo='" + this.getSexo() + '\'' +
-                ", fecha_nacimiento='" + this.getFecha_nacimiento() + '\'' +
-                ", telefono='" + this.getTelefono() + '\'' +
-                ", legajo='" + this.getLegajo() + '\'' +
-                '}';
+    public String toString()  {
+        return this.getApellido() + ", " +this.getNombre();
     }
 
+
     public String getFullname() {
-        return this.getNombre() + ", " +this.getApellido();
+        return this.getApellido() + ", " +this.getNombre();
     }
 }

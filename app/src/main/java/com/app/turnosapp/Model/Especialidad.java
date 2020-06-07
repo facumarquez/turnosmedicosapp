@@ -26,4 +26,5 @@ public class Especialidad implements Serializable {
     public String toString() {
         return this.getNombre();
     }
+
 }
