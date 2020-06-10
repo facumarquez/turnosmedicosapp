@@ -15,15 +15,18 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.TurnosAPI;
+import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Turno;
 import com.app.turnosapp.Model.Usuario;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import retrofit2.Call;
@@ -71,6 +74,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(Paciente_HomeActivity.this, Usuario_verPerfil.class);
                 intent.putExtra("usuario", usuario);
+                intent.putExtra("tipo", "paciente".toUpperCase());
                 startActivity(intent);
             }
         });
@@ -109,6 +113,11 @@ public class Paciente_HomeActivity extends AppCompatActivity {
 
     private void cargarDatos(List<Turno> turnos) {
         listView = findViewById(R.id.listView);
+        //si no hay turnos se inicializa listado...
+        if (turnos == null) {
+            turnos = new ArrayList<Turno>();
+        }
+
         MyAdapter adapter = new MyAdapter(this, turnos, R.drawable.confirm,R.drawable.bin);
         listView.setAdapter(adapter);
     }
@@ -134,28 +143,36 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             LayoutInflater layoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View row = layoutInflater.inflate(R.layout.paciente_item_turno, parent, false);
-            ImageView images = row.findViewById(R.id.image);
-            ImageView images2 = row.findViewById(R.id.image2);
+            ImageView ivConfirmar = row.findViewById(R.id.ivconfirmar);
+            ImageView ivEliminar = row.findViewById(R.id.iveliminar);
             TextView fecha = row.findViewById(R.id.textView1);
             TextView especialidad = row.findViewById(R.id.textView2);
             TextView doctor = row.findViewById(R.id.textView3);
 
             // now set our resources on views
-            images.setImageResource(rImgs_confirm);
-            images2.setImageResource(rImgs_delete);
+            ivConfirmar.setImageResource(rImgs_confirm);
+            ivEliminar.setImageResource(rImgs_delete);
+            String estadoDelTurno = "";
+
+            if (turnos.get(position).getEstadoTurno().equals("Reservado".toUpperCase())){
+                estadoDelTurno = "";
+            }else{
+                estadoDelTurno = " - " + turnos.get(position).getEstadoTurno();
+            }
             String fechaFormateada= StringHelper.convertirFechaAFormato_dd_mm_aaaa(turnos.get(position).getFechaTurno());
-            fecha.setText(fechaFormateada +" "+turnos.get(position).getTurnoDesde());
+            fecha.setText(fechaFormateada +" "+ turnos.get(position).getTurnoDesde() + estadoDelTurno);
             especialidad.setText(turnos.get(position).getEspecialidad().getNombre());
             doctor.setText(turnos.get(position).getMedico().getFullname());
 
+
             //adding a click listener to the button to remove item from the list
-            images2.setOnClickListener(new View.OnClickListener() {
+            ivEliminar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    borrarTurno(position);
+                    anularTurno(position);
                 }
             });
-            images.setOnClickListener(new View.OnClickListener() {
+            ivConfirmar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     confirmarTurno(position);
@@ -165,12 +182,56 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             return row;
         }
 
-        private void borrarTurno(final int position) {
-            Toast.makeText(Paciente_HomeActivity.this, "Borrar: "+position+" - "+turnos.get(position) , Toast.LENGTH_SHORT).show();
+        private void anularTurno(final int position) {
+            TurnosAPI agendaPacienteService = RetrofitConnection.obtenerConexion
+                    (getString(R.string.apiTurnosURL)).create(TurnosAPI.class);
+
+            Call<Turno> call = agendaPacienteService.anularTurno(turnos.get(position).getId());
+            call.enqueue(new Callback<Turno>() {
+                @Override
+                public void onResponse(Call<Turno> call, Response<Turno> response) {
+                    if (!response.isSuccessful()) {
+                        Gson gson = new Gson();
+                        MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(Paciente_HomeActivity.this, "Se ha anulado el turno", Toast.LENGTH_SHORT).show();
+                        finish();
+                        startActivity(getIntent());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Turno> call, Throwable t) {
+                    Toast.makeText(Paciente_HomeActivity.this, "Error al actualizar el estado del turno", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
 
         private void confirmarTurno(final int position) {
-            Toast.makeText(Paciente_HomeActivity.this, "Confirmar: "+position+" - "+turnos.get(position), Toast.LENGTH_SHORT).show();
+            TurnosAPI agendaPacienteService = RetrofitConnection.obtenerConexion
+                    (getString(R.string.apiTurnosURL)).create(TurnosAPI.class);
+
+            Call<Turno> call = agendaPacienteService.confirmarTurno(turnos.get(position).getId());
+            call.enqueue(new Callback<Turno>() {
+                @Override
+                public void onResponse(Call<Turno> call, Response<Turno> response) {
+                    if (!response.isSuccessful()) {
+                        Gson gson = new Gson();
+                        MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(Paciente_HomeActivity.this, "Se ha confirmado el turno", Toast.LENGTH_SHORT).show();
+                        finish();
+                        startActivity(getIntent());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Turno> call, Throwable t) {
+                    Toast.makeText(Paciente_HomeActivity.this, "Error al actualizar el estado del turno", Toast.LENGTH_SHORT).show();
+                }
+            });
         }
     }
     }

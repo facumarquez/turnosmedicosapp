@@ -27,14 +27,17 @@ public class Usuario_verPerfil extends AppCompatActivity {
     private Button btnAtras;
     private Button btnActualizarDatos;
     private Usuario nuevoUsuario;
+    private String tipoUsuario;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_usuario_ver_perfil);
 
-        Intent intentAgendaMedico = getIntent();
-        nuevoUsuario = (Usuario)intentAgendaMedico.getSerializableExtra(("usuario"));
+        Intent intent = getIntent();
+        nuevoUsuario = (Usuario)intent.getSerializableExtra(("usuario"));
+        tipoUsuario = (String)intent.getSerializableExtra(("tipo"));
 
         etMail = (EditText) findViewById(R.id.etEmail);
         etTelefono = (EditText) findViewById(R.id.etTelefono);
@@ -53,9 +56,17 @@ public class Usuario_verPerfil extends AppCompatActivity {
                     @Override
                     public void getUsuario(Usuario user) {
                         nuevoUsuario = user;
-                        Intent intentAgendaMedico = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
-                        intentAgendaMedico.putExtra("usuario", (Serializable) nuevoUsuario);
-                        startActivity(intentAgendaMedico);
+
+                        if (tipoUsuario.equals("paciente".toUpperCase())) {
+                            Intent intentPaciente = new Intent(Usuario_verPerfil.this, Paciente_HomeActivity.class);
+                            intentPaciente.putExtra("usuario", (Serializable) nuevoUsuario);
+                            startActivity(intentPaciente);
+                        }
+                        if (tipoUsuario.equals("medico".toUpperCase())) {
+                            Intent intentMedico = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
+                            intentMedico.putExtra("usuario", (Serializable) nuevoUsuario);
+                            startActivity(intentMedico);
+                        }
                     }
                 });
             }

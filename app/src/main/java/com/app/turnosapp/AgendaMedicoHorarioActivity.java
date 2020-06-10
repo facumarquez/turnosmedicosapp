@@ -94,14 +94,14 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             LayoutInflater layoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View row = layoutInflater.inflate(R.layout.paciente_item_turno, parent, false);
-            ImageView images = row.findViewById(R.id.image);
-            ImageView images2 = row.findViewById(R.id.image2);
+            ImageView ivConfirmar = row.findViewById(R.id.ivconfirmar);
+            ImageView ivEliminar = row.findViewById(R.id.iveliminar);
             TextView myTitle = row.findViewById(R.id.textView1);
             TextView myDescription = row.findViewById(R.id.textView2);
 
             // now set our resources on views
-            images.setImageResource(rImgs_confirm[position]);
-            images2.setImageResource(rImgs_delete[position]);
+            ivConfirmar.setImageResource(rImgs_confirm[position]);
+            ivEliminar.setImageResource(rImgs_delete[position]);
             myTitle.setText(rTitle[position]);
             myDescription.setText(rDescription[position]);
 

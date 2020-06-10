@@ -8,6 +8,8 @@ public class Turno {
     private Long id;
     private String fechaTurno;
     private String turnoHasta;
+    private String estadoTurno;
+
     private Especialidad especialidad;
     private String turnoDesde;
     private Medico medico;
@@ -34,6 +36,14 @@ public class Turno {
 
     public void setTurnoHasta(String turnoHasta) {
         this.turnoHasta = turnoHasta;
+    }
+
+    public String getEstadoTurno() {
+        return estadoTurno;
+    }
+
+    public void setEstadoTurno(String estadoTurno) {
+        this.estadoTurno = estadoTurno;
     }
 
     public Especialidad getEspecialidad() {

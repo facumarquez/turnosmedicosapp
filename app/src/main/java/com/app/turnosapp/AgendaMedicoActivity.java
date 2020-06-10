@@ -102,6 +102,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
             public void onClick(android.view.View view) {
                 Intent intent = new Intent(AgendaMedicoActivity.this, Usuario_verPerfil.class);
                 intent.putExtra("usuario", (Serializable) usuario);
+                intent.putExtra("tipo", "medico".toUpperCase());
                 startActivity(intent);
             }
         });
