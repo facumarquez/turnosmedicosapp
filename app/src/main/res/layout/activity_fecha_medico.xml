@@ -10,20 +10,21 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="10dp">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="40dp"
+            android:layout_marginLeft="10dp"
             android:text="Especialidad"
-            android:textSize="20dp" />
+            android:textSize="15dp" />
 
         <Spinner
             android:id="@+id/spEspecialidad"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"/>
+            android:layout_marginLeft="10dp"
+            android:textSize="15dp" />
     </LinearLayout>
 
     <CheckBox
@@ -31,21 +32,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Seleccionar todo el mes"
+        android:textSize="10dp"
         android:layout_marginLeft="30dp"
-        android:layout_marginTop="30dp"/>
-
-    <!--<CalendarView
-        android:id="@+id/calendarMedico"
-        android:layout_width="wrap_content"
-        android:layout_height="302dp"
-        android:layout_gravity="center" />
-    -->
-
+        android:layout_marginTop="10dp"/>
 
     <sun.bob.mcalendarview.MCalendarView
         android:id="@+id/mcvFechasMedico"
-        android:layout_width="350dp"
-        android:layout_height="400dp"
+        android:layout_width="300dp"
+        android:layout_height="350dp"
         android:layout_marginLeft="30dp"
         tools:context=".MainActivity" />
 
@@ -58,23 +52,19 @@
             android:id="@+id/buttonModHorarios"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="Ver/Modificar\nHorarios" />
+            android:text="Horarios" />
 
         <Button
             android:id="@+id/buttonEliHorarios"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="20dp"
-            android:text="Eliminar\nHorarios" />
+            android:text="Eliminar Horarios" />
 
         <Button
             android:id="@+id/buttonVerTurnos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="20dp"
-            android:text="Ver\nTurnos" />
-
+            android:text="Turnos" />
     </LinearLayout>
 
 </LinearLayout>

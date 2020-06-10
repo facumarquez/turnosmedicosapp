@@ -21,14 +21,14 @@
             android:text="Agenda Mensual"
             android:textSize="36sp"
             android:gravity="center"
-            android:layout_marginTop="50dp"/>
+            android:layout_marginTop="20dp"/>
 
         <ImageView
             android:id="@+id/ivagenda"
             android:layout_width="172dp"
             android:layout_height="136dp"
             android:layout_gravity="center"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="20dp"
             app:srcCompat="@drawable/ic_launcher_foreground" />
 
 
