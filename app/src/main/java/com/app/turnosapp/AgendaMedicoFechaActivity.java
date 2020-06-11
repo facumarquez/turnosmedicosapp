@@ -38,7 +38,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
     private MCalendarView calendarView;
     private Spinner spEspecialidades;
-    private Button modHorarios;
+    private Button btHorarios;
 
     private AgendaMedico agendaMedico;
 
@@ -64,7 +64,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         calendarView = (MCalendarView) findViewById(R.id.mcvFechasMedico);
         calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
 
-        modHorarios = (Button)findViewById(R.id.buttonModHorarios);
+        btHorarios = (Button)findViewById(R.id.btnHorarios);
 
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -107,7 +107,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         });
 
         //Botones
-        modHorarios.setOnClickListener(new View.OnClickListener(){
+        btHorarios.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
 
                 for (String fecha : listaFechasCalendario){
