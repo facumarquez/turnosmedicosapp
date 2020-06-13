@@ -20,7 +20,7 @@ import android.widget.Toast;
 
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Helpers.StringHelper;
-import com.app.turnosapp.Interface.TurnosAPI;
+import com.app.turnosapp.Interface.AgendaPacienteService;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Turno;
 import com.app.turnosapp.Model.Usuario;
@@ -90,9 +90,9 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        TurnosAPI turnosAPI = retrofit.create(TurnosAPI.class);
+        AgendaPacienteService agendaPacienteService = retrofit.create(AgendaPacienteService.class);
 
-        Call<List<Turno>> call = turnosAPI.getTurnosPaciente(idPaciente);
+        Call<List<Turno>> call = agendaPacienteService.getTurnosPaciente(idPaciente);
         call.enqueue(new Callback<List<Turno>>() {
             @Override
             public void onResponse(Call<List<Turno>> call, Response<List<Turno>> response) {
@@ -183,8 +183,9 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         }
 
         private void anularTurno(final int position) {
-            TurnosAPI agendaPacienteService = RetrofitConnection.obtenerConexion
-                    (getString(R.string.apiTurnosURL)).create(TurnosAPI.class);
+
+            AgendaPacienteService agendaPacienteService = RetrofitConnection.obtenerConexion
+                    (getString(R.string.apiTurnosURL)).create(AgendaPacienteService.class);
 
             Call<Turno> call = agendaPacienteService.anularTurno(turnos.get(position).getId());
             call.enqueue(new Callback<Turno>() {
@@ -209,8 +210,9 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         }
 
         private void confirmarTurno(final int position) {
-            TurnosAPI agendaPacienteService = RetrofitConnection.obtenerConexion
-                    (getString(R.string.apiTurnosURL)).create(TurnosAPI.class);
+
+            AgendaPacienteService agendaPacienteService = RetrofitConnection.obtenerConexion
+                    (getString(R.string.apiTurnosURL)).create(AgendaPacienteService.class);
 
             Call<Turno> call = agendaPacienteService.confirmarTurno(turnos.get(position).getId());
             call.enqueue(new Callback<Turno>() {

@@ -5,14 +5,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.app.turnosapp.Interface.TurnosAPI;
+import com.app.turnosapp.Interface.UsuarioService;
 import com.app.turnosapp.Model.Usuario;
 
 import java.io.Serializable;
@@ -56,9 +55,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        TurnosAPI turnosAPI = retrofit.create(TurnosAPI.class);
+        UsuarioService usuarioService = retrofit.create(UsuarioService.class);
 
-        Call<Usuario> call = turnosAPI.loginUser(user, password,tipo);
+        Call<Usuario> call = usuarioService.loginUser(user, password,tipo);
         call.enqueue(new Callback<Usuario>() {
             @Override
             public void onResponse(Call<Usuario> call, Response<Usuario> response) {

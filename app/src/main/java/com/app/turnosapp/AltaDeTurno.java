@@ -5,24 +5,17 @@
 
 package com.app.turnosapp;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
-import android.icu.util.Calendar;
-import android.os.Build;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.app.turnosapp.Helpers.StringHelper;
-import com.app.turnosapp.Interface.TurnosAPI;
+import com.app.turnosapp.Interface.EspecialidadService;
 import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.Medico;
 
@@ -136,9 +129,9 @@ public class AltaDeTurno extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        TurnosAPI turnosAPI = retrofit.create(TurnosAPI.class);
+        EspecialidadService especialidadService = retrofit.create(EspecialidadService.class);
 
-        Call<List<Especialidad>> call = turnosAPI.getEspecialidades();
+        Call<List<Especialidad>> call = especialidadService.getEspecialidades();
         call.enqueue(new Callback<List<Especialidad>>() {
             @Override
             public void onResponse(Call<List<Especialidad>> call, Response<List<Especialidad>> response) {
@@ -177,9 +170,9 @@ public class AltaDeTurno extends AppCompatActivity {
                 .addConverterFactory(GsonConverterFactory.create())
                 .build();
 
-        TurnosAPI turnosAPI = retrofit.create(TurnosAPI.class);
+        EspecialidadService especialidadService = retrofit.create(EspecialidadService.class);
 
-        Call<List<Medico>> call = turnosAPI.getMedicosPorEspecialidad(id);
+        Call<List<Medico>> call = especialidadService.getMedicosPorEspecialidad(id);
         call.enqueue(new Callback<List<Medico>>() {
             @Override
             public void onResponse(Call<List<Medico>> call, Response<List<Medico>> response) {
