@@ -10,6 +10,10 @@ import retrofit2.http.Path;
 
 public interface UsuarioService {
 
+    //TurnosAPI
+    @GET("Usuarios/{username}/{password}/{tipo}")
+    Call<Usuario> loginUser(@Path("username") String username, @Path("password") String password,@Path("tipo") String tipo);
+
     @GET("Usuarios/{idUsuario}")
     Call<Usuario> getUsuarioPorID(@Path("idUsuario") long idUsuario);
 
