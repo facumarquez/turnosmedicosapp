@@ -55,13 +55,13 @@
             android:text="Horarios" />
 
         <Button
-            android:id="@+id/buttonEliHorarios"
+            android:id="@+id/btnEliminarHorarios"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Eliminar Horarios" />
 
         <Button
-            android:id="@+id/buttonVerTurnos"
+            android:id="@+id/btVerTurnos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Turnos" />
