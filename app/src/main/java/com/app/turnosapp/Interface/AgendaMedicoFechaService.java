@@ -4,7 +4,6 @@ import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.AgendaMedicoTurno;
 import com.app.turnosapp.Model.Medico;
 
-import java.util.HashSet;
 import java.util.List;
 
 import retrofit2.Call;
@@ -19,14 +18,14 @@ public interface AgendaMedicoFechaService {
     Call<List<AgendaMedicoFecha>> crearFechasAgendaMedico(@Body List<AgendaMedicoFecha> fechasAgenda);
 
     @GET("AgendaMedicoFechas/{idEspecialidad}/{idMedico}/{mes}/{anio}/{horario}")
-    Call<HashSet<AgendaMedicoFecha>> getAgendaMedicoFechasByEspecialidad_Medico_Periodo_Horario(@Path("idEspecialidad") Long idEspecialidad,
+    Call<List<AgendaMedicoFecha>> getAgendaMedicoFechasByEspecialidad_Medico_Periodo_Horario(@Path("idEspecialidad") Long idEspecialidad,
                                                                                                 @Path("idMedico") Long idMedico,
                                                                                                 @Path("mes") int mes,
                                                                                                 @Path("anio") int anio,
                                                                                                 @Path("horario") String horario);
 
     @GET("AgendaMedicoFechas/{idEspecialidad}/{mes}/{anio}/{horario}")
-    Call<HashSet<AgendaMedicoFecha>> getAgendaMedicoFechasByEspecialidad_Periodo_Horario(@Path("idEspecialidad") Long idEspecialidad,
+    Call<List<AgendaMedicoFecha>> getAgendaMedicoFechasByEspecialidad_Periodo_Horario(@Path("idEspecialidad") Long idEspecialidad,
                                                                                   @Path("mes") int mes,
                                                                                   @Path("anio") int anio,
                                                                                   @Path("horario") String horario);
