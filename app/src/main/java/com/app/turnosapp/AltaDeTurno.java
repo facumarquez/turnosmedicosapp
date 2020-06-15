@@ -7,21 +7,30 @@ package com.app.turnosapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
+import android.icu.util.Calendar;
 import android.os.Bundle;
+import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.app.turnosapp.Helpers.StringHelper;
+import com.app.turnosapp.Interface.AgendaMedicoFechaService;
 import com.app.turnosapp.Interface.EspecialidadService;
+import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.Medico;
+import com.app.turnosapp.Model.Usuario;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 
 import retrofit2.Call;
@@ -31,6 +40,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import sun.bob.mcalendarview.MCalendarView;
 import sun.bob.mcalendarview.listeners.OnDateClickListener;
+import sun.bob.mcalendarview.listeners.OnMonthChangeListener;
 import sun.bob.mcalendarview.vo.DateData;
 import sun.bob.mcalendarview.vo.MarkedDates;
 
@@ -41,11 +51,22 @@ public class AltaDeTurno extends AppCompatActivity {
     private Spinner spMedicos;
     private MCalendarView calendarView;
     private Spinner horarios;
+    private Button btSiguiente;
 
+    private List<AgendaMedicoFecha> listaAgendaMedicoFecha;
+    private AgendaMedicoFecha agendaMedicoFechaSeleccionada;
     private List<Especialidad> listaEspecialidades;
-    private Especialidad especialidadSeleccionada;
     private List<Medico> listaMedicos;
-    private DateData fechaSeleccionada;
+    private Usuario usuario;
+
+    //Datos seleccionados en la pantalla
+    private Especialidad especialidadSeleccionada;
+    private Medico medicoSeleccionado;
+    private int diaSeleccionado;
+    private int mesSeleccionado;
+    private int anioSeleccionado;
+    private String horarioSeleccionado;
+
 
 
     @Override
@@ -53,23 +74,58 @@ public class AltaDeTurno extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_alta_de_turno);
 
+        //Recibo el dato de la pantalla anterior
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            usuario = (Usuario) extras.getSerializable("usuario");
+        }
+
         // Inicializo los controles
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
         spMedicos = (Spinner) findViewById(R.id.spMedico);
         horarios = (Spinner) findViewById(R.id.spHorario);
         calendarView = (MCalendarView) findViewById(R.id.mcvFechaTurno);
+        btSiguiente = (Button) findViewById(R.id.btConfirmar);
 
-        //Cargo los horarios posibles (Mañana|Tarde)
-        horarios = (Spinner) findViewById(R.id.spHorario);
-
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.horarios, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         horarios.setAdapter(adapter);
 
+        //Inicializo el calendario
+        Date date = new Date();
+        String day          = (String) DateFormat.format("dd",   date.getTime()); // 20
+        String monthNumber  = (String) DateFormat.format("MM",   date.getTime()); // 6
+        String year         = (String) DateFormat.format("yyyy", date.getTime()); // 2020
+        mesSeleccionado=Integer.valueOf(monthNumber);
+        anioSeleccionado=Integer.valueOf(year);
 
         //Cargo las especialidades en el Spinner
         getEspecialidades();
+
+        btSiguiente.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+                if(diaSeleccionado==0){
+                    Toast.makeText(AltaDeTurno.this, "ERROR: Debe seleccionar un día en el calendario", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    //Busco la AgendaMedicoFecha del dia seleccionado por el usuario
+                    String fechaFormateada=String.format("%d%02d%02d", anioSeleccionado,mesSeleccionado,diaSeleccionado); // Formato 20200615
+                    agendaMedicoFechaSeleccionada=getAgendaMedicoFecha(fechaFormateada);
+                    if (agendaMedicoFechaSeleccionada == null) {
+                        Toast.makeText(AltaDeTurno.this, "ERROR: No hay turnos en la fecha seleccionada", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Intent intent = new Intent(AltaDeTurno.this, Paciente_AltaDeTurno2.class);
+                        intent.putExtra("usuario", (Serializable) usuario);
+                        intent.putExtra("agendaMedicoFecha", (Serializable) agendaMedicoFechaSeleccionada);
+                        intent.putExtra("horarioSeleccionado", (Serializable) horarioSeleccionado);
+                        startActivity(intent);
+                    }
+                }
+            }
+        });
 
         //Cuando selecciona la especialidad se cargan los médicos de esa especialidad
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -82,6 +138,32 @@ public class AltaDeTurno extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 //TODO: ver si poner algo aca....
+            }
+        });
+
+        horarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
+                if(parent.getItemAtPosition(i).toString()=="Tarde"){
+                    horarioSeleccionado = "T";
+                }
+                else{
+                    horarioSeleccionado = "M";
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+
+        calendarView.setOnMonthChangeListener(new OnMonthChangeListener() {
+            @Override
+            public void onMonthChange(int year, int month) {
+                mesSeleccionado = month;
+                anioSeleccionado = year;
+                Toast.makeText(AltaDeTurno.this, mesSeleccionado + " "+ anioSeleccionado, Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -108,17 +190,66 @@ public class AltaDeTurno extends AppCompatActivity {
                 } else {
                     calendarView.getMarkedDates().getAll().clear();
                     calendarView.markDate(date);
+                    diaSeleccionado=date.getDay();
                 }
-                Toast.makeText(AltaDeTurno.this, fechaFormatoJapones, Toast.LENGTH_SHORT).show();
             }
         });
 
+        spMedicos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                medicoSeleccionado = (Medico) parent.getItemAtPosition(position);
+                getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
+            }
 
-
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+                //TODO: ver si poner algo aca....
+            }
+        });
     }
 
-    private void getTurnosCalendario(){
+    private AgendaMedicoFecha getAgendaMedicoFecha(String fechaFormateada) {
+        for (AgendaMedicoFecha agendaMedicoFecha : listaAgendaMedicoFecha) {
+            if (agendaMedicoFecha.getFecha().equals(fechaFormateada)) {
+                return agendaMedicoFecha;
+            }
+        }
+        return null;
+    }
+
+    private void getTurnosCalendario(Long idEspecialidad, Long idMedico, int mes, int anio, String horario){
         //Esta funcion va a pintar el calendario con los turnos disponibles
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
+
+        //Si la respuesta es vacia falla!!!
+        Call<List<AgendaMedicoFecha>> call = agendaMedicoFechaService.getAgendaMedicoFechasByEspecialidad_Medico_Periodo_Horario(idEspecialidad,idMedico,mes, anio, horario);
+        call.enqueue(new Callback<List<AgendaMedicoFecha>>() {
+            @Override
+            public void onResponse(Call<List<AgendaMedicoFecha>> call, Response<List<AgendaMedicoFecha>> response) {
+
+                if(!response.isSuccessful()) {
+                    Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    if(!response.body().isEmpty()) {
+                        listaAgendaMedicoFecha = response.body();
+
+                        //Cargo los datos en calendario
+                        // pintarCalendario
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<List<AgendaMedicoFecha>> call, Throwable t) {
+                Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+            }
+        });
 
     }
 

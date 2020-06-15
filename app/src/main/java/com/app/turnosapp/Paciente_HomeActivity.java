@@ -78,8 +78,6 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
-
-
     }
 
     //Hace una llamada a la API, obtiene los turnos del paciente y los muestra en la lista
