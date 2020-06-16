@@ -16,4 +16,5 @@ public interface AgendaMedicoService {
 
     @POST("AgendaMedicos")
     Call<AgendaMedico> crearAgendaMedico(@Body AgendaMedico agenda);
+
 }

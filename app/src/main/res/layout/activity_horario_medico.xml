@@ -5,70 +5,52 @@
     android:orientation="vertical">
 
     <TextView
+        android:id="@+id/tvdias"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="40dp"
-        android:layout_marginTop="20dp"
         android:layout_gravity="left"
-
+        android:layout_marginTop="10dp"
         android:text="Días: "
+        android:textSize="15dp"/>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="left"
+        android:layout_marginTop="10dp"
+        android:text="Rango Horario "
         android:textSize="20dp"/>
 
-
     <LinearLayout
-        android:layout_width="match_parent"
+        android:layout_width="387dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="10dp">
+        android:orientation="horizontal">
 
-        <TextView
+        <TimePicker
+            android:id="@+id/tpDesde"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Desde"
-            android:textSize="20dp"
-            android:layout_marginLeft="40dp"/>
+            android:layout_height="85dp"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            android:timePickerMode="spinner" />
 
-        <EditText
-            android:id="@+id/editDesde"
+        <TimePicker
+            android:id="@+id/tpHasta"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="time" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginTop="0dp"
-        >
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Hasta"
-            android:textSize="20dp"
-            android:layout_marginLeft="40dp"/>
-
-        <EditText
-            android:id="@+id/editHasta"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:ems="10"
-            android:inputType="time" />
-
+            android:layout_height="85dp"
+            android:scaleX="0.8"
+            android:scaleY="0.8"
+            android:timePickerMode="spinner" />
     </LinearLayout>
 
     <Button
-        android:id="@+id/buttonAgregar"
+        android:id="@+id/btnAgregar"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="40dp"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="0dp"
         android:text="Agregar" />
+
 
     <ListView
         android:id="@+id/listView"
@@ -82,7 +64,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_marginTop="0dp"
+        android:layout_marginTop="40dp"
         >
 
         <Button
@@ -90,15 +72,15 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="40dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="0dp"
             android:text="Volver"/>
 
         <Button
-            android:id="@+id/buttonConfirmar"
+            android:id="@+id/btnConfirmarAgenda"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="90dp"
-            android:text="CONFIRMAR\nDatos\nAGENDA"/>
+            android:layout_marginLeft="0dp"
+            android:text="CONFIRMAR AGENDA"/>
 
     </LinearLayout>
 

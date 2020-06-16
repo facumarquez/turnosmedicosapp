@@ -3,6 +3,7 @@ package com.app.turnosapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -30,6 +31,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 import sun.bob.mcalendarview.MCalendarView;
+import sun.bob.mcalendarview.MarkStyle;
 import sun.bob.mcalendarview.listeners.OnDateClickListener;
 import sun.bob.mcalendarview.vo.DateData;
 import sun.bob.mcalendarview.vo.MarkedDates;
@@ -39,6 +41,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private MCalendarView calendarView;
     private Spinner spEspecialidades;
     private Button btHorarios;
+    private Button btEliminarHorarios;
 
     private AgendaMedico agendaMedico;
 
@@ -46,7 +49,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private List<Especialidad> listaEspecialidades = new ArrayList<Especialidad>();
 
     private ArrayList<String> listaFechasCalendario =  new ArrayList<String>();
-    private List<AgendaMedicoFecha> fechasAgenda = new ArrayList<AgendaMedicoFecha>();
+    private List<AgendaMedicoFecha> fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
 
 
     @Override
@@ -54,9 +57,20 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fecha_medico);
 
-       Intent intentAgendaMedico = getIntent();
-       agendaMedico = (AgendaMedico)intentAgendaMedico.getSerializableExtra(("agendaMedico"));
+        Intent intentAgendaMedico = getIntent();
+        agendaMedico = (AgendaMedico)intentAgendaMedico.getSerializableExtra(("agendaMedico"));
+/*
+       obtenerFechasAgenda(new IAgendaMedicoFechaCallback() {
+           @Override
+           public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechasAgenda) {
+               fechasAgendaMedico = fechasAgenda;
 
+               if(fechasAgenda!=null){
+                  marcarFechasCargadasEnCalandario();
+               }
+           }
+       });
+*/
 
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
         getEspecialidadesDelMedico(agendaMedico.getMedico().getIdUsuario());
@@ -64,7 +78,11 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         calendarView = (MCalendarView) findViewById(R.id.mcvFechasMedico);
         calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
 
+
+
+
         btHorarios = (Button)findViewById(R.id.btnHorarios);
+        btEliminarHorarios = (Button)findViewById(R.id.btnEliminarHorarios);
 
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -111,15 +129,44 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             public void onClick(android.view.View view){
 
                 for (String fecha : listaFechasCalendario){
-                    fechasAgenda.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
+                    fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
                 }
 
-                crearFechasAgenda(fechasAgenda, new IAgendaMedicoFechaCallback() {
+                Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
+                intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
+                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                startActivity(intent);
+
+                /*
+                crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
                     @Override
                     public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
-                        fechasAgenda = fechas;
+                        fechasAgendaMedico = fechas;
                         Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
-                        intent.putExtra("fechasAgenda", (Serializable) fechasAgenda);
+                        intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
+                        intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                        startActivity(intent);
+                        finish();
+                    }
+                });
+                */
+            }
+        });
+
+
+        btEliminarHorarios.setOnClickListener(new View.OnClickListener(){
+            public void onClick(android.view.View view){
+
+                for (String fecha : listaFechasCalendario){
+                    fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
+                }
+
+                crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
+                    @Override
+                    public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
+                        fechasAgendaMedico = fechas;
+                        Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
+                        intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
                         startActivity(intent);
                     }
                 });
@@ -185,5 +232,40 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 Toast.makeText(AgendaMedicoFechaActivity.this, "Error al crear las fechas", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void obtenerFechasAgenda(final IAgendaMedicoFechaCallback callback) {
+
+        AgendaMedicoFechaService agendaMedicoFechaService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoFechaService.class);
+
+        Call<List<AgendaMedicoFecha>> call = agendaMedicoFechaService.getFechasPorAgendaMedico(agendaMedico.getId());
+        call.enqueue(new Callback<List<AgendaMedicoFecha>>() {
+            @Override
+            public void onResponse(Call<List<AgendaMedicoFecha>> call, Response<List<AgendaMedicoFecha>> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(AgendaMedicoFechaActivity.this, "No se encontraron fechas de la agenda", Toast.LENGTH_SHORT).show();
+                } else {
+                    callback.getFechasAgendaMedico(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<AgendaMedicoFecha>> call, Throwable t) {
+                Toast.makeText(AgendaMedicoFechaActivity.this, "Error al obtener las fecha de la agenda", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void marcarFechasCargadasEnCalandario(){
+
+        for (AgendaMedicoFecha fecha:fechasAgendaMedico) {
+            int dia,mes,anio;
+            dia = Integer.valueOf(fecha.getFecha().substring(6,8));
+            mes = Integer.valueOf(fecha.getFecha().substring(4,6));
+            anio = Integer.valueOf(fecha.getFecha().substring(0,4));
+            calendarView.markDate(
+                    new DateData(anio, mes, dia).setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
+        }
     }
 }

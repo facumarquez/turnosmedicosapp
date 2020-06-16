@@ -9,30 +9,44 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
+
+import com.app.turnosapp.Helpers.RetrofitConnection;
+import com.app.turnosapp.Helpers.StringHelper;
+import com.app.turnosapp.Interface.AgendaMedicoHorarioService;
+import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
+import com.app.turnosapp.Model.AgendaMedicoHorario;
+
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
-    private List<AgendaMedicoFecha> fechasAgenda = new ArrayList<AgendaMedicoFecha>();
+    MyAdapter adapter;
+    private List<AgendaMedicoFecha> fechasAgendaSeleccionadas = new ArrayList<AgendaMedicoFecha>();
+    private List<AgendaMedicoHorario> horariosAgenda = new ArrayList<AgendaMedicoHorario>();
+    private AgendaMedico agendaMedico;
+
+    private TextView tvdias;
+
+    private TimePicker tpkDesde;
+    private TimePicker tpkHasta;
+    ListView lvHorarios;
     private Button volverAtras;
-
-    ListView listView;
-    String mTitle[] = {"04/05/2020", "11/05/2020", "18/05/2020", "25/05/2020"};
-    String mDescription[] = {"08:00 - 12:00", "08:00 - 12:00", "08:00 - 12:00", "08:00 - 12:00"};
-    int images_confirm[] = {R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm};
-    int images_delete[] = {R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin};
-    // so our images and other things are set in array
-
-    // now paste some images in drawable
+    private Button btAgregar;
+    private Button btConfirmarAgenda;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,76 +54,195 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_horario_medico);
 
         Intent intentAgendaMedicoFecha = getIntent();
-        fechasAgenda = (List<AgendaMedicoFecha>)intentAgendaMedicoFecha.getSerializableExtra(("fechasAgenda"));
+        fechasAgendaSeleccionadas = (List<AgendaMedicoFecha>)intentAgendaMedicoFecha.getSerializableExtra(("fechasAgenda"));
+        agendaMedico = (AgendaMedico)intentAgendaMedicoFecha.getSerializableExtra(("agendaMedico"));
+
+        tvdias = (TextView) findViewById(R.id.tvdias);
+        for (AgendaMedicoFecha fecha: fechasAgendaSeleccionadas) {
+            tvdias.setText(tvdias.getText() + " - " + fecha.getFecha().substring(6,8));
+        }
+
+        tpkDesde = (TimePicker) findViewById(R.id.tpDesde);
+        tpkDesde.setIs24HourView(true);
+        tpkDesde.setCurrentHour(9);
+        tpkDesde.setCurrentMinute(0);
+
+        tpkHasta = (TimePicker) findViewById(R.id.tpHasta);
+        tpkHasta.setIs24HourView(true);
+        tpkHasta.setCurrentHour(18);
+        tpkHasta.setCurrentMinute(0);
+
 
         volverAtras = (Button)findViewById(R.id.buttonVolver);
+        btConfirmarAgenda = (Button)findViewById(R.id.btnConfirmarAgenda);
 
-        listView = findViewById(R.id.listView);
-        // now create an adapter class
+        btAgregar = (Button)findViewById(R.id.btnAgregar);
 
-        MyAdapter adapter = new MyAdapter(this, mTitle, mDescription, images_confirm,images_delete);
-        listView.setAdapter(adapter);
-        // there is my mistake...
-        // now again check this..
+        lvHorarios = findViewById(R.id.listView);
 
-        // now set item click on list view
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(AgendaMedicoHorarioActivity.this, parent.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        // so item click is done now check list view
+        adapter = new MyAdapter(this, horariosAgenda, R.drawable.confirm,R.drawable.bin);
+        lvHorarios.setAdapter(adapter);
 
         //Botones
         volverAtras.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
                 Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
+                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+
+                startActivity(intent);
+            }
+        });
+
+        btAgregar.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+
+                for (AgendaMedicoFecha fecha:fechasAgendaSeleccionadas) {
+                    List<AgendaMedicoHorario> horarios = new ArrayList<AgendaMedicoHorario>();
+                    String horarioDesde;
+                    String horarioHasta;
+
+                    int horaDesde= tpkDesde.getCurrentHour();
+                    int horaHasta= tpkHasta.getCurrentHour();
+
+                    int minDesde=tpkDesde.getCurrentMinute();
+                    int minHasta=tpkHasta.getCurrentMinute();
+
+                    horarioDesde = StringHelper.rellenarConCeros(String.valueOf(horaDesde),2) + ":"+ StringHelper.rellenarConCeros(String.valueOf(minDesde),2);
+                    horarioHasta = StringHelper.rellenarConCeros(String.valueOf(horaHasta),2) + ":"+ StringHelper.rellenarConCeros(String.valueOf(minHasta),2);
+
+                    AgendaMedicoHorario horarioNuevo = new AgendaMedicoHorario(horarioDesde,horarioHasta);
+                    horarioNuevo.setAgendaMedicoFecha(fecha);
+                    horarios = fecha.getHorarios();
+                    if (horarios == null) {
+                        horarios = new ArrayList<AgendaMedicoHorario>();
+                    }
+                    horarios.add(horarioNuevo);
+                    fecha.setHorarios(horarios);
+                    adapter.add(horarioNuevo);
+                }
+                //adapter.add(horarios);
+            }
+        });
+
+        //Botones
+        btConfirmarAgenda.setOnClickListener(new View.OnClickListener(){
+            public void onClick(android.view.View view){
+                Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
+                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+
                 startActivity(intent);
             }
         });
     }
 
-    class MyAdapter extends ArrayAdapter<String> {
+
+    class MyAdapter extends ArrayAdapter<AgendaMedicoHorario> {
 
         Context context;
-        String rTitle[];
-        String rDescription[];
-        int rImgs_confirm[];
-        int rImgs_delete[];
+        List<AgendaMedicoHorario> horarios;
+        int rImgs_confirm;
+        int rImgs_delete;
 
-        MyAdapter (Context c, String title[], String description[], int imgs_confirm[],int imgs_delete[]) {
-            super(c, R.layout.paciente_item_turno, R.id.textView1, title);
+        MyAdapter (Context c, List<AgendaMedicoHorario> horariosAgenda, int imgs_confirm,int imgs_delete) {
+            super(c, R.layout.medico_item_horario, R.id.tvFecha, horariosAgenda);
             this.context = c;
-            this.rTitle = title;
-            this.rDescription = description;
             this.rImgs_confirm = imgs_confirm;
             this.rImgs_delete = imgs_delete;
-
+            this.horarios = horariosAgenda;
         }
 
         @NonNull
         @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             LayoutInflater layoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View row = layoutInflater.inflate(R.layout.paciente_item_turno, parent, false);
+            View row = layoutInflater.inflate(R.layout.medico_item_horario, parent, false);
             ImageView ivConfirmar = row.findViewById(R.id.ivconfirmar);
             ImageView ivEliminar = row.findViewById(R.id.iveliminar);
-            TextView myTitle = row.findViewById(R.id.textView1);
-            TextView myDescription = row.findViewById(R.id.textView2);
+            TextView tvFecha = row.findViewById(R.id.tvFecha);
+            TextView horario = row.findViewById(R.id.tvHorario);
 
-            // now set our resources on views
-            ivConfirmar.setImageResource(rImgs_confirm[position]);
-            ivEliminar.setImageResource(rImgs_delete[position]);
-            myTitle.setText(rTitle[position]);
-            myDescription.setText(rDescription[position]);
+            ivConfirmar.setImageResource(rImgs_confirm);
+            ivEliminar.setImageResource(rImgs_delete);
+            String fecha = StringHelper.convertirFechaAFormato_dd_mm_aaaa(horariosAgenda.get(position).getAgendaMedicoFecha().getFecha());
+            tvFecha.setText(fecha);
+            horario.setText(horariosAgenda.get(position).getHoraDesde() + "-" + horariosAgenda.get(position).getHoraHasta());
 
 
-
+            //adding a click listener to the button to remove item from the list
+            ivEliminar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    eliminarHorario(position);
+                }
+            });
+            ivConfirmar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    //modificarHorario(position);
+                }
+            });
 
             return row;
         }
+
+
+        private void eliminarHorario(final int position) {
+            //TODO:sacar en un futuro
+            adapter.remove(horariosAgenda.get(position));
+
+            AgendaMedicoHorarioService agendaMedicoHorarioService = RetrofitConnection.obtenerConexion
+                    (getString(R.string.apiTurnosURL)).create(AgendaMedicoHorarioService.class);
+
+            Call<Void> call = agendaMedicoHorarioService.deleteAgendaMedicoHorario (horariosAgenda.get(position).getId());
+            call.enqueue(new Callback<Void>() {
+                @Override
+                public void onResponse(Call<Void> call, Response<Void> response) {
+                    if (!response.isSuccessful()) {
+                        Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha podido eliminar el horario", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha podido eliminar el horario", Toast.LENGTH_SHORT).show();
+                        finish();
+                        startActivity(getIntent());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Void> call, Throwable t) {
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha podido eliminar el horario", Toast.LENGTH_SHORT).show();
+                }
+            });
+         }
+
+
+        private void modificarhorario(final int position) {
+/*
+            AgendaPacienteService agendaPacienteService = RetrofitConnection.obtenerConexion
+                    (getString(R.string.apiTurnosURL)).create(AgendaPacienteService.class);
+
+            Call<Turno> call = agendaPacienteService.confirmarTurno(turnos.get(position).getId());
+            call.enqueue(new Callback<Turno>() {
+                @Override
+                public void onResponse(Call<Turno> call, Response<Turno> response) {
+                    if (!response.isSuccessful()) {
+                        Gson gson = new Gson();
+                        MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(Paciente_HomeActivity.this, "Se ha confirmado el turno", Toast.LENGTH_SHORT).show();
+                        finish();
+                        startActivity(getIntent());
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<Turno> call, Throwable t) {
+                    Toast.makeText(Paciente_HomeActivity.this, "Error al actualizar el estado del turno", Toast.LENGTH_SHORT).show();
+                }
+            });
+            */
+        }
+
     }
 }
 
