@@ -8,6 +8,7 @@ package com.app.turnosapp;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.text.format.DateFormat;
@@ -39,6 +40,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 import sun.bob.mcalendarview.MCalendarView;
+import sun.bob.mcalendarview.MarkStyle;
 import sun.bob.mcalendarview.listeners.OnDateClickListener;
 import sun.bob.mcalendarview.listeners.OnMonthChangeListener;
 import sun.bob.mcalendarview.vo.DateData;
@@ -243,7 +245,7 @@ public class AltaDeTurno extends AppCompatActivity {
 
                         //Cargo el array con los dias que hay turnos disponibles
                         getDiasConTurnosDisponibles();
-                        // pintarCalendario
+                        pintarCalendario(); //Falta mantener el pintado cuando selecciona una fecha!!
                     }
                 }
             }
@@ -254,6 +256,17 @@ public class AltaDeTurno extends AppCompatActivity {
         });
 
     }
+
+    private void pintarCalendario() {
+        calendarView = (MCalendarView) findViewById(R.id.mcvFechaTurno);
+
+        for (DateData d : listafechasConTurnosDisponibles) {
+            calendarView.markDate(
+                    d.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN))
+            );
+        }
+    }
+
 
     private void getDiasConTurnosDisponibles() {
         listafechasConTurnosDisponibles = new ArrayList<DateData>();
