@@ -67,7 +67,8 @@ public class AltaDeTurno extends AppCompatActivity {
     private int anioSeleccionado;
     private String horarioSeleccionado;
 
-
+    //Auxiliares para pintar el calendario
+    private ArrayList<DateData> listafechasConTurnosDisponibles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -240,7 +241,8 @@ public class AltaDeTurno extends AppCompatActivity {
                     if(!response.body().isEmpty()) {
                         listaAgendaMedicoFecha = response.body();
 
-                        //Cargo los datos en calendario
+                        //Cargo el array con los dias que hay turnos disponibles
+                        getDiasConTurnosDisponibles();
                         // pintarCalendario
                     }
                 }
@@ -251,6 +253,14 @@ public class AltaDeTurno extends AppCompatActivity {
             }
         });
 
+    }
+
+    private void getDiasConTurnosDisponibles() {
+        listafechasConTurnosDisponibles = new ArrayList<DateData>();
+        for (AgendaMedicoFecha a : listaAgendaMedicoFecha) {
+            DateData d = new DateData(Integer.valueOf(a.getFecha().substring(0,4)),Integer.valueOf(a.getFecha().substring(4,6)), Integer.valueOf(a.getFecha().substring(6,8)));
+            listafechasConTurnosDisponibles.add(d);
+        }
     }
 
 
