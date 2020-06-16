@@ -1,8 +1,9 @@
 package com.app.turnosapp.Model;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class AgendaMedicoHorario {
+public class AgendaMedicoHorario implements Serializable {
 
     private Long id;
     private String horaDesde;
@@ -49,4 +50,10 @@ public class AgendaMedicoHorario {
     public void setTurnos(List<AgendaMedicoTurno> turnos) {
         this.turnos = turnos;
     }
+
+    public AgendaMedicoHorario(String horaDesde, String horaHasta) {
+        this.horaDesde = horaDesde;
+        this.horaHasta = horaHasta;
+    }
+
 }

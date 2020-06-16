@@ -1,6 +1,8 @@
 package com.app.turnosapp.Model;
 
-public class AgendaMedicoTurno {
+import java.io.Serializable;
+
+public class AgendaMedicoTurno implements Serializable {
 
     private Long id;
     private String turnoDesde;

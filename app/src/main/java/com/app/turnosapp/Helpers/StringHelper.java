@@ -11,6 +11,6 @@ public class StringHelper {
 
     public static String convertirFechaAFormato_dd_mm_aaaa(String fecha) {
 
-        return fecha.substring(6,8) + "/" + fecha.substring(4,6) + "/" + fecha.substring(0,2);
+        return fecha.substring(6,8) + "/" + fecha.substring(4,6) + "/" + fecha.substring(0,4);
     }
 }

@@ -1,6 +1,7 @@
 package com.app.turnosapp.Model;
 
 import java.io.Serializable;
+import java.util.List;
 
 public class AgendaMedico implements Serializable {
     private long id;
@@ -8,6 +9,7 @@ public class AgendaMedico implements Serializable {
     private int mes;
     private int anio;
     private String fechaCreacion;
+    private List<AgendaMedicoFecha> fechas;
 
     public long getId() {
         return id;
@@ -49,10 +51,20 @@ public class AgendaMedico implements Serializable {
         this.fechaCreacion = fechaCreacion;
     }
 
+    public List<AgendaMedicoFecha> getFechas() {
+        return fechas;
+    }
+
+    public void setFechas(List<AgendaMedicoFecha> fechas) {
+        this.fechas = fechas;
+    }
+
     public AgendaMedico(int mes,int anio, Medico medico, String fechaCreacion){
         this.mes = mes;
         this.anio = anio;
         this.medico = medico;
         this.fechaCreacion = fechaCreacion;
     }
+
+
 }

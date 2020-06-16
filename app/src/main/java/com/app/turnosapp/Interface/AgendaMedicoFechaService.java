@@ -42,5 +42,6 @@ public interface AgendaMedicoFechaService {
                                                      @Path("idMedico") long idMedico);
 
 
-
+    @GET("AgendaMedicoFechas/AgendaMedicos/{idAgendaMedico}")
+    Call<List<AgendaMedicoFecha>> getFechasPorAgendaMedico(@Path("idAgendaMedico") long idAgendaMedico);
 }
