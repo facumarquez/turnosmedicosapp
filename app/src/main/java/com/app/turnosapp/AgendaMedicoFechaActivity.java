@@ -16,6 +16,7 @@ import com.app.turnosapp.Callbacks.IAgendaMedicoFechaCallback;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.AgendaMedicoFechaService;
+import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Interface.MedicoService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
@@ -42,6 +43,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private Spinner spEspecialidades;
     private Button btHorarios;
     private Button btEliminarHorarios;
+    private Button btConfirmarAgenda;
 
     private AgendaMedico agendaMedico;
 
@@ -83,6 +85,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
         btHorarios = (Button)findViewById(R.id.btnHorarios);
         btEliminarHorarios = (Button)findViewById(R.id.btnEliminarHorarios);
+        btConfirmarAgenda = (Button)findViewById(R.id.btnConfirmarAgenda);
 
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -132,12 +135,6 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                     fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
                 }
 
-                Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
-                intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
-                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
-                startActivity(intent);
-
-                /*
                 crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
                     @Override
                     public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
@@ -149,7 +146,6 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                         finish();
                     }
                 });
-                */
             }
         });
 
@@ -170,6 +166,12 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                         startActivity(intent);
                     }
                 });
+            }
+        });
+
+        btConfirmarAgenda.setOnClickListener(new View.OnClickListener(){
+            public void onClick(android.view.View view){
+               confirmarAgenda(agendaMedico.getId());
             }
         });
     }
@@ -267,5 +269,29 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             calendarView.markDate(
                     new DateData(anio, mes, dia).setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
         }
+    }
+
+    private void confirmarAgenda(long idAgendaMedico) {
+
+        AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
+
+        Call<Boolean> call = agendaMedicoService.confirmarAgenda(idAgendaMedico);
+        call.enqueue(new Callback <Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(AgendaMedicoFechaActivity.this, "No se ha confirmado la agenda", Toast.LENGTH_SHORT).show();
+                } else {
+                    finish();
+                    startActivity(getIntent());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                Toast.makeText(AgendaMedicoFechaActivity.this, "Error al confirmar la agenda", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }

@@ -1,6 +1,7 @@
 package com.app.turnosapp.Interface;
 
 import com.app.turnosapp.Model.AgendaMedicoFecha;
+import com.app.turnosapp.Model.AgendaMedicoHorario;
 import com.app.turnosapp.Model.AgendaMedicoTurno;
 import com.app.turnosapp.Model.Medico;
 
@@ -44,4 +45,8 @@ public interface AgendaMedicoFechaService {
 
     @GET("AgendaMedicoFechas/AgendaMedicos/{idAgendaMedico}")
     Call<List<AgendaMedicoFecha>> getFechasPorAgendaMedico(@Path("idAgendaMedico") long idAgendaMedico);
+
+
+    @POST("AgendaMedicoFechas/Horarios")
+    Call<List<AgendaMedicoHorario>> obtenerHorariosDeFechas(@Body List<AgendaMedicoFecha> fechasAgenda);
 }

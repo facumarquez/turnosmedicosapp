@@ -17,4 +17,7 @@ public interface AgendaMedicoService {
     @POST("AgendaMedicos")
     Call<AgendaMedico> crearAgendaMedico(@Body AgendaMedico agenda);
 
+    @POST("AgendaMedicos/{idAgendaMedico}/ConfirmarAgenda")
+    Call<Boolean> confirmarAgenda(@Path("idAgendaMedico") long idAgendaMedico);
+
 }
