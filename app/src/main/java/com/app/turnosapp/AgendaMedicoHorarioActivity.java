@@ -26,7 +26,6 @@ import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.AgendaMedicoHorario;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,10 +80,11 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         //Botones
         volverAtras.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
-                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                //Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
+                //intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                 //TODO: ver si poner tambien la lista de fechas obtenidas de la pantalla anterior....
-                startActivity(intent);
+                //startActivity(intent);
+                finish();
             }
         });
 
@@ -145,7 +145,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
        AgendaMedicoHorarioService agendaMedicoHorarioService = RetrofitConnection.obtenerConexion
                 (getString(R.string.apiTurnosURL)).create(AgendaMedicoHorarioService.class);
-
+        //TODO: debe devolver algo???
         Call<List<AgendaMedicoHorario>> call = agendaMedicoHorarioService.crearHorarios(horarios);
         call.enqueue(new Callback <List<AgendaMedicoHorario>>() {
             @Override

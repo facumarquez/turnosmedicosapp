@@ -16,10 +16,12 @@ import com.app.turnosapp.Callbacks.IAgendaMedicoFechaCallback;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.AgendaMedicoFechaService;
+import com.app.turnosapp.Interface.AgendaMedicoHorarioService;
 import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Interface.MedicoService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
+import com.app.turnosapp.Model.AgendaMedicoHorario;
 import com.app.turnosapp.Model.Especialidad;
 
 import java.io.Serializable;
@@ -103,13 +105,14 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             @Override
             public void onDateClick(View view, DateData date) {
                 boolean Marcado = false;
-                MarkedDates markedDates = calendarView.getMarkedDates();
-                ArrayList markData = markedDates.getAll();
+                MarkedDates diasMarcados = calendarView.getMarkedDates();
+                ArrayList markData = diasMarcados.getAll();
                 for (int i = 0; i < markData.size(); i++) {
                     if (markData.get(i) == date) {
                         Marcado = true;
                     }
                 }
+
                 String anio = StringHelper.rellenarConCeros(String.valueOf(date.getYear()),4);
                 String mes = StringHelper.rellenarConCeros(String.valueOf(date.getMonth()),2);
                 String dia = StringHelper.rellenarConCeros(String.valueOf(date.getDay()),2);
@@ -134,7 +137,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 for (String fecha : listaFechasCalendario){
                     fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
                 }
-
+                //TODO: ver si poner en null el objeto......manejar click del calendario
                 crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
                     @Override
                     public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
@@ -143,7 +146,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                         intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
                         intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                         startActivity(intent);
-                        finish();
+                        //finish();
                     }
                 });
             }
@@ -291,6 +294,30 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
                 Toast.makeText(AgendaMedicoFechaActivity.this, "Error al confirmar la agenda", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void eliminarHorariosAgenda(List<AgendaMedicoHorario> horarios) {
+
+        AgendaMedicoHorarioService agendaMedicoHorarioService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoHorarioService.class);
+
+        Call<Void> call = agendaMedicoHorarioService.deleteHorarios(horarios);
+        call.enqueue(new Callback <Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(AgendaMedicoFechaActivity.this, "No se eliminaron los horarios", Toast.LENGTH_SHORT).show();
+                } else {
+                    finish();
+                    startActivity(getIntent());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(AgendaMedicoFechaActivity.this, "Error al eliminar los horarios", Toast.LENGTH_SHORT).show();
             }
         });
     }

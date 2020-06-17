@@ -17,4 +17,8 @@ public interface AgendaMedicoHorarioService {
 
     @POST("AgendaMedicoHorarios/")
     Call<List<AgendaMedicoHorario>> crearHorarios(@Body List<AgendaMedicoHorario> horarios);
+
+    @DELETE("AgendaMedicoHorarios/")
+    Call<Void> deleteHorarios(@Body List<AgendaMedicoHorario> horarios);
+
 }
