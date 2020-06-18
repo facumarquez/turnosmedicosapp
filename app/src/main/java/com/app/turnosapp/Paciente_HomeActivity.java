@@ -187,12 +187,15 @@ public class Paciente_HomeActivity extends AppCompatActivity {
 
             Call<Turno> call = agendaPacienteService.anularTurno(turnos.get(position).getId());
             call.enqueue(new Callback<Turno>() {
+
                 @Override
                 public void onResponse(Call<Turno> call, Response<Turno> response) {
                     if (!response.isSuccessful()) {
                         Gson gson = new Gson();
                         MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
                         Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                        finish();
+                        startActivity(getIntent());
                     } else {
                         Toast.makeText(Paciente_HomeActivity.this, "Se ha anulado el turno", Toast.LENGTH_SHORT).show();
                         finish();
