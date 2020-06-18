@@ -32,6 +32,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
 
 import retrofit2.Call;
@@ -49,12 +50,14 @@ import sun.bob.mcalendarview.vo.MarkedDates;
 public class AltaDeTurno extends AppCompatActivity {
 
 
+    //Controles de la pantalla
     private Spinner spEspecialidades;
     private Spinner spMedicos;
     private MCalendarView calendarView;
     private Spinner horarios;
     private Button btSiguiente;
 
+    //Atributos que voy a usar
     private List<AgendaMedicoFecha> listaAgendaMedicoFecha;
     private AgendaMedicoFecha agendaMedicoFechaSeleccionada;
     private List<Especialidad> listaEspecialidades;
@@ -70,7 +73,7 @@ public class AltaDeTurno extends AppCompatActivity {
     private String horarioSeleccionado;
 
     //Auxiliares para pintar el calendario
-    private ArrayList<DateData> listafechasConTurnosDisponibles;
+    private ArrayList<String> listafechasConTurnosDisponibles;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +170,9 @@ public class AltaDeTurno extends AppCompatActivity {
                 mesSeleccionado = month;
                 anioSeleccionado = year;
                 Toast.makeText(AltaDeTurno.this, mesSeleccionado + " "+ anioSeleccionado, Toast.LENGTH_SHORT).show();
+                //Esto no lo probé pero debería funcionar
+                getDiasConTurnosDisponibles();
+                pintarCalendario();
             }
         });
 
@@ -190,9 +196,14 @@ public class AltaDeTurno extends AppCompatActivity {
 
                 if (Marcado) {
                     calendarView.unMarkDate(date);
+                    pintarCalendario();
                 } else {
                     calendarView.getMarkedDates().getAll().clear();
-                    calendarView.markDate(date);
+                    pintarCalendario();
+                    if(listafechasConTurnosDisponibles.contains(fechaFormatoJapones)) {
+                        calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
+                    }
+                    calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.GREEN)));
                     diaSeleccionado=date.getDay();
                 }
             }
@@ -260,7 +271,8 @@ public class AltaDeTurno extends AppCompatActivity {
     private void pintarCalendario() {
         calendarView = (MCalendarView) findViewById(R.id.mcvFechaTurno);
 
-        for (DateData d : listafechasConTurnosDisponibles) {
+        for (String a : listafechasConTurnosDisponibles) {
+            DateData d=new DateData(Integer.valueOf(a.substring(0,4)),Integer.valueOf(a.substring(4,6)), Integer.valueOf(a.substring(6,8)));
             calendarView.markDate(
                     d.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN))
             );
@@ -269,10 +281,14 @@ public class AltaDeTurno extends AppCompatActivity {
 
 
     private void getDiasConTurnosDisponibles() {
-        listafechasConTurnosDisponibles = new ArrayList<DateData>();
+        listafechasConTurnosDisponibles = new ArrayList<String>();
         for (AgendaMedicoFecha a : listaAgendaMedicoFecha) {
-            DateData d = new DateData(Integer.valueOf(a.getFecha().substring(0,4)),Integer.valueOf(a.getFecha().substring(4,6)), Integer.valueOf(a.getFecha().substring(6,8)));
-            listafechasConTurnosDisponibles.add(d);
+            listafechasConTurnosDisponibles.add(a.getFecha());
+        }
+
+        // delete duplicates (if any) from 'listafechasConTurnosDisponibles'
+        if(!listafechasConTurnosDisponibles.isEmpty()) {
+            listafechasConTurnosDisponibles = new ArrayList<String>(new LinkedHashSet<String>(listafechasConTurnosDisponibles));
         }
     }
 
