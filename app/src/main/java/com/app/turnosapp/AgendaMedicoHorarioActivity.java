@@ -114,8 +114,10 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                 crearHorariosAgenda(horariosAgenda, new IAgendaMedicoHorarioCallback() {
                     @Override
                     public void getHorariosAgendaMedico(List<AgendaMedicoHorario> horarios) {
-                        horariosAgenda = horarios;
-                        adapter.notifyDataSetChanged();
+                        //horariosAgenda = horarios;
+                        //adapter.notifyDataSetChanged();
+                        finish();
+                        startActivity(getIntent());
                     }
                 });
             }
