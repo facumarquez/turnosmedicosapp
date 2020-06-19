@@ -102,8 +102,8 @@ public class AgendaMedicoActivity extends AppCompatActivity {
                                 Intent intent = new Intent(AgendaMedicoActivity.this, AgendaMedicoFechaActivity.class);
                                 intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                                 startActivity(intent);
-
                             }else{
+                                //TODO: preguntar si se puede acceder a agendas menores al periodo actual
                                 Toast.makeText(AgendaMedicoActivity.this,"La agenda seleccionada es menor al período actual", Toast.LENGTH_SHORT).show();
                             }
                         }
