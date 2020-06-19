@@ -63,6 +63,8 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         altaDeTurno.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
+
+                
                 Intent intent = new Intent(Paciente_HomeActivity.this, AltaDeTurno.class);
                 intent.putExtra("usuario", usuario);
                 startActivity(intent);
@@ -152,11 +154,15 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             ivEliminar.setImageResource(rImgs_delete);
             String estadoDelTurno = "";
 
-            if (turnos.get(position).getEstadoTurno().equals("Reservado".toUpperCase())){
+            //si esta disponible es porque lo anuló anteriormente y lo libero para otro paciente...
+            if (turnos.get(position).getEstadoTurno().equals("Disponible".toUpperCase())) {
+                estadoDelTurno = " - " + "ANULADO";
+            }else if (turnos.get(position).getEstadoTurno().equals("Reservado".toUpperCase())){
                 estadoDelTurno = "";
             }else{
                 estadoDelTurno = " - " + turnos.get(position).getEstadoTurno();
             }
+
             String fechaFormateada= StringHelper.convertirFechaAFormato_dd_mm_aaaa(turnos.get(position).getFechaTurno());
             fecha.setText(fechaFormateada +" "+ turnos.get(position).getTurnoDesde() + estadoDelTurno);
             especialidad.setText(turnos.get(position).getEspecialidad().getNombre());
