@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,6 +30,7 @@ import com.app.turnosapp.Model.Medico;
 import com.app.turnosapp.Model.Paciente;
 import com.app.turnosapp.Model.Usuario;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -146,6 +148,10 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
                 else{
                     //Cargo los turnos en el listado para que el paciente pueda seleccionar el que desea.
                     Toast.makeText(Paciente_AltaDeTurno2.this, "Se ha agendado el turno", Toast.LENGTH_SHORT).show();
+                    finish();
+                    Intent intent = new Intent(Paciente_AltaDeTurno2.this, Paciente_HomeActivity.class);
+                    intent.putExtra("usuario", usuario);
+                    startActivity(intent);
                 }
             }
             @Override

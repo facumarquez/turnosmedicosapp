@@ -22,6 +22,7 @@ import android.widget.Toast;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.AgendaMedicoFechaService;
 import com.app.turnosapp.Interface.EspecialidadService;
+import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.Medico;
@@ -75,6 +76,9 @@ public class AltaDeTurno extends AppCompatActivity {
     //Auxiliares para pintar el calendario
     private ArrayList<String> listafechasConTurnosDisponibles;
 
+    //Auxiliares
+    int check = 0; //Este check es para que no se ejecute la llamada que trae los turnosDisponibles 2 veces la primera vez(una cuando se setea el medico y otra cuando se setea el horario)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +96,11 @@ public class AltaDeTurno extends AppCompatActivity {
         horarios = (Spinner) findViewById(R.id.spHorario);
         calendarView = (MCalendarView) findViewById(R.id.mcvFechaTurno);
         btSiguiente = (Button) findViewById(R.id.btConfirmar);
+        listafechasConTurnosDisponibles = new ArrayList<String>();
+
+        //Limpio el calendario por si ya había navegado la pantalla
+        calendarView.getMarkedDates().getAll().clear();
+
 
          ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
                 R.array.horarios, android.R.layout.simple_spinner_item);
@@ -150,11 +159,15 @@ public class AltaDeTurno extends AppCompatActivity {
         horarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
-                if(parent.getItemAtPosition(i).toString()=="Tarde"){
+                if(parent.getItemAtPosition(i).toString().equals("Tarde")){
                     horarioSeleccionado = "T";
                 }
                 else{
                     horarioSeleccionado = "M";
+                }
+
+                if(++check > 1) {
+                    getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
                 }
             }
 
@@ -170,9 +183,7 @@ public class AltaDeTurno extends AppCompatActivity {
                 mesSeleccionado = month;
                 anioSeleccionado = year;
                 Toast.makeText(AltaDeTurno.this, mesSeleccionado + " "+ anioSeleccionado, Toast.LENGTH_SHORT).show();
-                //Esto no lo probé pero debería funcionar
-                getDiasConTurnosDisponibles();
-                pintarCalendario();
+                getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
             }
         });
 
@@ -224,9 +235,11 @@ public class AltaDeTurno extends AppCompatActivity {
     }
 
     private AgendaMedicoFecha getAgendaMedicoFecha(String fechaFormateada) {
-        for (AgendaMedicoFecha agendaMedicoFecha : listaAgendaMedicoFecha) {
-            if (agendaMedicoFecha.getFecha().equals(fechaFormateada)) {
-                return agendaMedicoFecha;
+        if(listaAgendaMedicoFecha!=null) {
+            for (AgendaMedicoFecha agendaMedicoFecha : listaAgendaMedicoFecha) {
+                if (agendaMedicoFecha.getFecha().equals(fechaFormateada)) {
+                    return agendaMedicoFecha;
+                }
             }
         }
         return null;
@@ -241,7 +254,6 @@ public class AltaDeTurno extends AppCompatActivity {
 
         AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
 
-        //Si la respuesta es vacia falla!!!
         Call<List<AgendaMedicoFecha>> call = agendaMedicoFechaService.getAgendaMedicoFechasByEspecialidad_Medico_Periodo_Horario(idEspecialidad,idMedico,mes, anio, horario);
         call.enqueue(new Callback<List<AgendaMedicoFecha>>() {
             @Override
@@ -253,11 +265,16 @@ public class AltaDeTurno extends AppCompatActivity {
                 else{
                     if(!response.body().isEmpty()) {
                         listaAgendaMedicoFecha = response.body();
-
-                        //Cargo el array con los dias que hay turnos disponibles
-                        getDiasConTurnosDisponibles();
-                        pintarCalendario(); //Falta mantener el pintado cuando selecciona una fecha!!
                     }
+                    else{
+                        if(listaAgendaMedicoFecha!=null) {
+                            listaAgendaMedicoFecha.clear();
+                        }
+                    }
+
+                    //Cargo el array con los dias que hay turnos disponibles
+                    getDiasConTurnosDisponibles();
+                    pintarCalendario();
                 }
             }
             @Override
@@ -269,26 +286,36 @@ public class AltaDeTurno extends AppCompatActivity {
     }
 
     private void pintarCalendario() {
-        calendarView = (MCalendarView) findViewById(R.id.mcvFechaTurno);
-
-        for (String a : listafechasConTurnosDisponibles) {
-            DateData d=new DateData(Integer.valueOf(a.substring(0,4)),Integer.valueOf(a.substring(4,6)), Integer.valueOf(a.substring(6,8)));
-            calendarView.markDate(
-                    d.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN))
-            );
+        calendarView.getMarkedDates().getAll().clear();
+        if(listafechasConTurnosDisponibles!=null) {
+            if(!listafechasConTurnosDisponibles.isEmpty()) {
+                for (String a : listafechasConTurnosDisponibles) {
+                    DateData d = new DateData(Integer.valueOf(a.substring(0, 4)), Integer.valueOf(a.substring(4, 6)), Integer.valueOf(a.substring(6, 8)));
+                    calendarView.markDate(
+                            d.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN))
+                    );
+                }
+            }
+            else{
+                //Fix choto
+                calendarView.markDate(2015, 10, 7);
+                calendarView.unMarkDate(2015, 10, 7);
+            }
         }
     }
 
 
     private void getDiasConTurnosDisponibles() {
-        listafechasConTurnosDisponibles = new ArrayList<String>();
-        for (AgendaMedicoFecha a : listaAgendaMedicoFecha) {
-            listafechasConTurnosDisponibles.add(a.getFecha());
-        }
+        listafechasConTurnosDisponibles.clear();
+        if(listaAgendaMedicoFecha !=null) {
+            for (AgendaMedicoFecha a : listaAgendaMedicoFecha) {
+                listafechasConTurnosDisponibles.add(a.getFecha());
+            }
 
-        // delete duplicates (if any) from 'listafechasConTurnosDisponibles'
-        if(!listafechasConTurnosDisponibles.isEmpty()) {
-            listafechasConTurnosDisponibles = new ArrayList<String>(new LinkedHashSet<String>(listafechasConTurnosDisponibles));
+            // delete duplicates (if any) from 'listafechasConTurnosDisponibles'
+            if (!listafechasConTurnosDisponibles.isEmpty()) {
+                listafechasConTurnosDisponibles = new ArrayList<String>(new LinkedHashSet<String>(listafechasConTurnosDisponibles));
+            }
         }
     }
 
