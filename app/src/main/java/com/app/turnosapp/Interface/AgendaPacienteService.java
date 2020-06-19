@@ -1,6 +1,7 @@
 package com.app.turnosapp.Interface;
 
 import com.app.turnosapp.Model.AgendaPaciente;
+import com.app.turnosapp.Model.ColaEsperaPaciente;
 import com.app.turnosapp.Model.Turno;
 
 import java.util.List;
@@ -25,4 +26,7 @@ public interface AgendaPacienteService {
 
     @POST("AgendaPacientes")
     Call<AgendaPaciente> crearAgendaPaciente(@Body AgendaPaciente agendaPaciente);
+
+    @POST("AgendaPacientes/ColaEspera")
+    Call<AgendaPaciente> agregarAColaDeEspera(@Body ColaEsperaPaciente colaEspera);
 }
