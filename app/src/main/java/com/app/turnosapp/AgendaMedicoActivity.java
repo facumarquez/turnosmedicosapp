@@ -17,10 +17,13 @@ import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Interface.MedicoService;
 import com.app.turnosapp.Model.AgendaMedico;
+import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Medico;
 import com.app.turnosapp.Model.Usuario;
+import com.google.gson.Gson;
 
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -87,12 +90,23 @@ public class AgendaMedicoActivity extends AppCompatActivity {
                                 @Override
                                 public void getAgendaMedico(AgendaMedico agenda) {
                                     agendaMedico = agenda;
+                                    Intent intent = new Intent(AgendaMedicoActivity.this, AgendaMedicoFechaActivity.class);
+                                    intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                                    startActivity(intent);
                                 }
                             });
+                        }else{
+                            Calendar ahora = Calendar.getInstance();
+                            int mesActual  = ahora.get(Calendar.MONTH);
+                            if (mesActual  <= agendaMedico.getMes()){
+                                Intent intent = new Intent(AgendaMedicoActivity.this, AgendaMedicoFechaActivity.class);
+                                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                                startActivity(intent);
+
+                            }else{
+                                Toast.makeText(AgendaMedicoActivity.this,"La agenda seleccionada es menor al período actual", Toast.LENGTH_SHORT).show();
+                            }
                         }
-                        Intent intent = new Intent(AgendaMedicoActivity.this, AgendaMedicoFechaActivity.class);
-                        intent.putExtra("agendaMedico", (Serializable) agendaMedico);
-                        startActivity(intent);
                     }
                 });
             }
@@ -176,7 +190,9 @@ public class AgendaMedicoActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<AgendaMedico> call, Response<AgendaMedico> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoActivity.this, "No se creó la agenda", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AgendaMedicoActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
                 } else {
                     callback.getAgendaMedico(response.body());
                 }
