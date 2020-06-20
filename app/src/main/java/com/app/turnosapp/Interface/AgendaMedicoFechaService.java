@@ -40,10 +40,11 @@ public interface AgendaMedicoFechaService {
     Call<List<AgendaMedicoTurno>> getTurnosDeUnaFechaYHorarioEspecifico(@Path("idAgendaMedicoFecha") Long idAgendaMedicoFecha,
                                                                                                     @Path("horario") String horario);
 
-    @GET("AgendaMedicoFechas/{fecha}/{horario}/Medicos/{idMedico}/TurnosDisponibles")
+    @GET("AgendaMedicoFechas/{fecha}/{horario}/Medicos/{idMedico}/Especialidades/{idEspecialidad}/TurnosDisponibles")
     Call<List<AgendaMedicoTurno>> getTurnosDeUnMedicoEspecifico(@Path("fecha") String fecha,
                                                                     @Path("horario") String horario,
-                                                                        @Path("idMedico") long idMedico);
+                                                                        @Path("idMedico") long idMedico,
+                                                                            @Path("idEspecialidad") long idEspecialidad);
 
 
     @GET("AgendaMedicoFechas/AgendaMedicos/{idAgendaMedico}")
