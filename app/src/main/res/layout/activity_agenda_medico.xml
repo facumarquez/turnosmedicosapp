@@ -21,14 +21,14 @@
             android:text="Agenda Mensual"
             android:textSize="36sp"
             android:gravity="center"
-            android:layout_marginTop="20dp"/>
+            android:layout_marginTop="10dp"/>
 
         <ImageView
             android:id="@+id/ivagenda"
             android:layout_width="172dp"
             android:layout_height="136dp"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             app:srcCompat="@drawable/ic_calendar" />
 
 
@@ -38,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:text="Seleccione el mes: "
             android:textSize="25sp"/>
 
@@ -66,7 +66,7 @@
             android:id="@+id/btnAgenda"
             android:layout_width="191dp"
             android:layout_height="50dp"
-            android:layout_marginTop="20dp"
+            android:layout_marginTop="10dp"
             android:text="VER/CARGAR AGENDA"
             android:layout_gravity="center" />
 
@@ -74,9 +74,15 @@
             android:id="@+id/btnPerfil"
             android:layout_width="191dp"
             android:layout_height="50dp"
-            android:layout_marginTop="10dp"
             android:text="VER MI PERFIL"
             android:layout_gravity="center" />
+
+        <Button
+            android:id="@+id/btCerrarSesion"
+            android:layout_width="191dp"
+            android:layout_height="50dp"
+            android:layout_gravity="center"
+            android:text="CERRAR SESIÓN" />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -37,6 +37,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
     private Spinner spAnios;
     private Button btnAgenda;
     private Button btnPerfil;
+    private Button btnCerrarSesion;
 
     private Usuario usuario;
     private Medico medico;
@@ -62,6 +63,8 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         spAnios = (Spinner) findViewById(R.id.spAnio);
         btnAgenda = (Button) findViewById(R.id.btnAgenda);
         btnPerfil = (Button) findViewById(R.id.btnPerfil);
+        btnCerrarSesion = (Button) findViewById(R.id.btCerrarSesion);
+
 
         ArrayAdapter<CharSequence> adapterMeses = ArrayAdapter.createFromResource(this,
                 R.array.meses_array, android.R.layout.simple_spinner_item);
@@ -118,6 +121,15 @@ public class AgendaMedicoActivity extends AppCompatActivity {
                 intent.putExtra("usuario", (Serializable) usuario);
                 intent.putExtra("tipo", "medico".toUpperCase());
                 startActivity(intent);
+            }
+        });
+
+        btnCerrarSesion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AgendaMedicoActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
             }
         });
     }

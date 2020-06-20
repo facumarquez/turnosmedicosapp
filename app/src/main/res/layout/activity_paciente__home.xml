@@ -17,13 +17,13 @@
     <ListView
         android:id="@+id/listView"
         android:layout_width="match_parent"
-        android:layout_height="380dp">
+        android:layout_height="350dp">
 
     </ListView>
 
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="111dp">
+        android:layout_height="150dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -42,7 +42,13 @@
                 android:layout_height="wrap_content"
                 android:text="VER MI PERFIL" />
 
+            <Button
+                android:id="@+id/btCerrarSesion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="CERRAR SESIÓN" />
         </LinearLayout>
+
     </ScrollView>
 
 </LinearLayout>
