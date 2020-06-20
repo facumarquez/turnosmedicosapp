@@ -21,6 +21,7 @@ import android.widget.Toast;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.AgendaPacienteService;
+import com.app.turnosapp.Interface.PacienteService;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Turno;
 import com.app.turnosapp.Model.Usuario;
@@ -41,6 +42,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
     Usuario usuario;
     Button altaDeTurno;
     Button verPerfil;
+    Button btnCerrarSesion;
 
 
     @Override
@@ -50,28 +52,25 @@ public class Paciente_HomeActivity extends AppCompatActivity {
 
         altaDeTurno = (Button) findViewById(R.id.btAltaTurno);
         verPerfil = (Button) findViewById(R.id.btVerPerfil);
+        btnCerrarSesion = (Button) findViewById(R.id.btCerrarSesion);
 
 
         //Recibo el dato de la pantalla anterior
         Bundle extras = getIntent().getExtras();
-        if(extras != null){
+        if (extras != null) {
             usuario = (Usuario) extras.getSerializable("usuario");
         }
 
         getTurnosPaciente(usuario.getIdUsuario());
 
-        altaDeTurno.setOnClickListener(new View.OnClickListener(){
+        altaDeTurno.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                
-                Intent intent = new Intent(Paciente_HomeActivity.this, AltaDeTurno.class);
-                intent.putExtra("usuario", usuario);
-                startActivity(intent);
+                estaAlDiaConLaCuota(usuario.getIdUsuario());
             }
         });
 
-        verPerfil.setOnClickListener(new View.OnClickListener(){
+        verPerfil.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(Paciente_HomeActivity.this, Usuario_verPerfil.class);
@@ -80,10 +79,19 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+
+        btnCerrarSesion.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Paciente_HomeActivity.this, MainActivity.class);
+                startActivity(intent);
+                finish();
+            }
+        });
     }
 
     //Hace una llamada a la API, obtiene los turnos del paciente y los muestra en la lista
-    private void getTurnosPaciente(long idPaciente){
+    private void getTurnosPaciente(long idPaciente) {
         List<Turno> listaTurnos;
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl(getString(R.string.apiTurnosURL))
@@ -96,13 +104,13 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         call.enqueue(new Callback<List<Turno>>() {
             @Override
             public void onResponse(Call<List<Turno>> call, Response<List<Turno>> response) {
-                if(!response.isSuccessful()) {
+                if (!response.isSuccessful()) {
                     Toast.makeText(Paciente_HomeActivity.this, "ERROR: No se pudieron obtener los turnos", Toast.LENGTH_SHORT).show();
-                }
-                else{
+                } else {
                     cargarDatos(response.body());
                 }
             }
+
             @Override
             public void onFailure(Call<List<Turno>> call, Throwable t) {
                 Toast.makeText(Paciente_HomeActivity.this, "ERROR: Falló la conexión al servicio", Toast.LENGTH_SHORT).show();
@@ -111,6 +119,40 @@ public class Paciente_HomeActivity extends AppCompatActivity {
     }
 
 
+    private Boolean estaAlDiaConLaCuota(long idPaciente) {
+
+        PacienteService pacienteService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(PacienteService.class);
+
+        Call<Boolean> call = pacienteService.pacienteAlDia(idPaciente);
+        call.enqueue(new Callback<Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                } else {
+                    if (response.body() == true) {
+                        Intent intent = new Intent(Paciente_HomeActivity.this, AltaDeTurno.class);
+                        intent.putExtra("usuario", usuario);
+                        startActivity(intent);
+                    } else {
+                         Toast.makeText(Paciente_HomeActivity.this, "El paciente no se encuentra al día con el pago de la cuota", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                Toast.makeText(Paciente_HomeActivity.this, "Error al obtener el paciente", Toast.LENGTH_SHORT).show();
+            }
+
+        });
+        return null;
+    }
+
     private void cargarDatos(List<Turno> turnos) {
         listView = findViewById(R.id.listView);
         //si no hay turnos se inicializa listado...
@@ -118,9 +160,10 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             turnos = new ArrayList<Turno>();
         }
 
-        MyAdapter adapter = new MyAdapter(this, turnos, R.drawable.confirm,R.drawable.bin);
+        MyAdapter adapter = new MyAdapter(this, turnos, R.drawable.confirm, R.drawable.bin);
         listView.setAdapter(adapter);
     }
+
 
     class MyAdapter extends ArrayAdapter<Turno> {
 

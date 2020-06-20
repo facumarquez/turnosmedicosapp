@@ -13,4 +13,7 @@ public interface PacienteService {
     @GET("Pacientes/{idPaciente}")
     Call<Paciente> getPaciente(@Path("idPaciente") long idPaciente);
 
+    @GET("Pacientes/{idPaciente}/pagoAlDia/")
+    Call<Boolean> pacienteAlDia(@Path("idPaciente") long idPaciente);
+
 }
