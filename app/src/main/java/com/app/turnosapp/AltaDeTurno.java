@@ -16,6 +16,10 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -25,8 +29,10 @@ import com.app.turnosapp.Interface.EspecialidadService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.Especialidad;
+import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Medico;
 import com.app.turnosapp.Model.Usuario;
+import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -57,6 +63,7 @@ public class AltaDeTurno extends AppCompatActivity {
     private MCalendarView calendarView;
     private Spinner horarios;
     private Button btSiguiente;
+    private CheckBox cbAllMedicos;
 
     //Atributos que voy a usar
     private List<AgendaMedicoFecha> listaAgendaMedicoFecha;
@@ -77,7 +84,8 @@ public class AltaDeTurno extends AppCompatActivity {
     private ArrayList<String> listafechasConTurnosDisponibles;
 
     //Auxiliares
-    int check = 0; //Este check es para que no se ejecute la llamada que trae los turnosDisponibles 2 veces la primera vez(una cuando se setea el medico y otra cuando se setea el horario)
+    private int check = 0; //Este check es para que no se ejecute la llamada que trae los turnosDisponibles 2 veces la primera vez(una cuando se setea el medico y otra cuando se setea el horario)
+    private boolean checkAllMedicos;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,12 +99,15 @@ public class AltaDeTurno extends AppCompatActivity {
         }
 
         // Inicializo los controles
+        cbAllMedicos = (CheckBox) findViewById(R.id.cbAllMedicos);
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
         spMedicos = (Spinner) findViewById(R.id.spMedico);
         horarios = (Spinner) findViewById(R.id.spHorario);
         calendarView = (MCalendarView) findViewById(R.id.mcvFechaTurno);
         btSiguiente = (Button) findViewById(R.id.btConfirmar);
         listafechasConTurnosDisponibles = new ArrayList<String>();
+        checkAllMedicos = cbAllMedicos.isChecked();
+
 
         //Limpio el calendario por si ya había navegado la pantalla
         calendarView.getMarkedDates().getAll().clear();
@@ -118,10 +129,29 @@ public class AltaDeTurno extends AppCompatActivity {
         //Cargo las especialidades en el Spinner
         getEspecialidades();
 
+        //lISTENERS
+        cbAllMedicos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                spMedicos.setEnabled(isChecked ? false : true);
+                checkAllMedicos = isChecked;
+
+                //Esto es para que cuando tilde "Todos" lo obligue a seleccionar el dia de nuevo (ya que se limpia el calendario pero queda la variable cargada)
+                diaSeleccionado=0;
+
+                //Si pasa de destildado a tildado tengo que actualizar el calendario
+                if(isChecked){
+                    getTurnosCalendarioAllMedicos(especialidadSeleccionada.getId(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
+                }else{
+                    getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
+                }
+            }
+        });
+
+
         btSiguiente.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-
                 if(diaSeleccionado==0){
                     Toast.makeText(AltaDeTurno.this, "ERROR: Debe seleccionar un día en el calendario", Toast.LENGTH_SHORT).show();
                 }
@@ -136,6 +166,9 @@ public class AltaDeTurno extends AppCompatActivity {
                         intent.putExtra("usuario", (Serializable) usuario);
                         intent.putExtra("agendaMedicoFecha", (Serializable) agendaMedicoFechaSeleccionada);
                         intent.putExtra("horarioSeleccionado", (Serializable) horarioSeleccionado);
+                        intent.putExtra("fechaSeleccionada", (Serializable) fechaFormateada);
+                        intent.putExtra("especialidadSeleccionada", (Serializable) especialidadSeleccionada);
+                        intent.putExtra("checkAllMedicos", checkAllMedicos);
                         startActivity(intent);
                     }
                 }
@@ -245,6 +278,47 @@ public class AltaDeTurno extends AppCompatActivity {
         return null;
     }
 
+    private void getTurnosCalendarioAllMedicos(Long idEspecialidad, int mes, int anio, String horario){
+        //Esta funcion va a pintar el calendario con los turnos disponibles
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
+
+        Call<List<AgendaMedicoFecha>> call = agendaMedicoFechaService.getAgendaMedicoFechasByEspecialidad_Periodo_Horario(idEspecialidad,mes, anio, horario);
+        call.enqueue(new Callback<List<AgendaMedicoFecha>>() {
+            @Override
+            public void onResponse(Call<List<AgendaMedicoFecha>> call, Response<List<AgendaMedicoFecha>> response) {
+
+                if (!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                } else {
+                    if (!response.body().isEmpty()) {
+                        listaAgendaMedicoFecha = response.body();
+                    } else {
+                        if (listaAgendaMedicoFecha != null) {
+                            listaAgendaMedicoFecha.clear();
+                        }
+                    }
+
+                    //Cargo el array con los dias que hay turnos disponibles
+                    getDiasConTurnosDisponibles();
+                    pintarCalendario();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<AgendaMedicoFecha>> call, Throwable t) {
+                Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
     private void getTurnosCalendario(Long idEspecialidad, Long idMedico, int mes, int anio, String horario){
         //Esta funcion va a pintar el calendario con los turnos disponibles
         Retrofit retrofit = new Retrofit.Builder()
@@ -260,7 +334,9 @@ public class AltaDeTurno extends AppCompatActivity {
             public void onResponse(Call<List<AgendaMedicoFecha>> call, Response<List<AgendaMedicoFecha>> response) {
 
                 if(!response.isSuccessful()) {
-                    Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 else{
                     if(!response.body().isEmpty()) {
@@ -334,7 +410,9 @@ public class AltaDeTurno extends AppCompatActivity {
             public void onResponse(Call<List<Especialidad>> call, Response<List<Especialidad>> response) {
 
                 if(!response.isSuccessful()) {
-                    Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 else{
                     if(!response.body().isEmpty()) {
@@ -375,7 +453,9 @@ public class AltaDeTurno extends AppCompatActivity {
             public void onResponse(Call<List<Medico>> call, Response<List<Medico>> response) {
 
                 if(!response.isSuccessful()) {
-                    Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
                 }
                 else{
 

@@ -13,6 +13,39 @@
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp">
 
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tvMedico2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="#EFEFEF"
+                android:gravity="center|top"
+                android:text="Seleccione medico:" />
+
+            <Spinner
+                android:id="@+id/spMedico2"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@id/tvMedico2" />
+
+            <CheckBox
+                android:id="@+id/cbFiltrar"
+                android:layout_width="wrap_content"
+                android:layout_height="20dp"
+                android:layout_below="@id/spMedico2"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="24dp"
+                android:layout_marginTop="2dp"
+                android:checked="true"
+                android:text="Todos"
+                android:textSize="10sp" />
+
+        </RelativeLayout>
+
         <ListView
             android:id="@+id/lvTurnos"
             android:choiceMode="singleChoice"
