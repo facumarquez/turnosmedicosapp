@@ -131,7 +131,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     Gson gson = new Gson();
                     MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                    Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     if (response.body() == true) {
                         Intent intent = new Intent(Paciente_HomeActivity.this, AltaDeTurno.class);
@@ -264,14 +264,14 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             AgendaPacienteService agendaPacienteService = RetrofitConnection.obtenerConexion
                     (getString(R.string.apiTurnosURL)).create(AgendaPacienteService.class);
 
-            Call<Turno> call = agendaPacienteService.confirmarTurno(turnos.get(position).getId());
-            call.enqueue(new Callback<Turno>() {
+            Call<Void> call = agendaPacienteService.confirmarTurno(turnos.get(position).getId());
+            call.enqueue(new Callback<Void>() {
                 @Override
-                public void onResponse(Call<Turno> call, Response<Turno> response) {
+                public void onResponse(Call<Void> call, Response<Void> response) {
                     if (!response.isSuccessful()) {
                         Gson gson = new Gson();
                         MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                     } else {
                         Toast.makeText(Paciente_HomeActivity.this, "Se ha confirmado el turno", Toast.LENGTH_SHORT).show();
                         finish();
@@ -280,7 +280,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<Turno> call, Throwable t) {
+                public void onFailure(Call<Void> call, Throwable t) {
                     Toast.makeText(Paciente_HomeActivity.this, "Error al actualizar el estado del turno", Toast.LENGTH_SHORT).show();
                 }
             });

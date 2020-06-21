@@ -22,7 +22,7 @@ public interface AgendaPacienteService {
     Call<Turno> anularTurno(@Path("idAgendaPaciente") Long idAgendaPaciente);
 
     @PUT("AgendaPacientes/{idAgendaPaciente}/ConfirmarTurno")
-    Call<Turno> confirmarTurno(@Path("idAgendaPaciente") Long idAgendaPaciente);
+    Call<Void> confirmarTurno(@Path("idAgendaPaciente") Long idAgendaPaciente);
 
     @POST("AgendaPacientes")
     Call<AgendaPaciente> crearAgendaPaciente(@Body AgendaPaciente agendaPaciente);

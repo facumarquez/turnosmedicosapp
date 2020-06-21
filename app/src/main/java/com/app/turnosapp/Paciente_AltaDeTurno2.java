@@ -352,7 +352,7 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
                 if(!response.isSuccessful()) {
                     Gson gson = new Gson();
                     MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                    Toast.makeText(Paciente_AltaDeTurno2.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Paciente_AltaDeTurno2.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 }
                 else{
                     //Cargo los turnos en el listado para que el paciente pueda seleccionar el que desea.
