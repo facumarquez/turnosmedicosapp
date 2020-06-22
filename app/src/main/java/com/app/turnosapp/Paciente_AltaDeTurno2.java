@@ -31,11 +31,14 @@ import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Medico;
 import com.app.turnosapp.Model.Paciente;
+import com.app.turnosapp.Model.Turno;
 import com.app.turnosapp.Model.Usuario;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 
@@ -125,8 +128,6 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 if(++check > 1) {
-                    //Esto es para ver si se dispara cuando destilda el CHECK. Si se dispara se van a hacer 2 llamadas en ese momento y habría que mejorarlo.
-                    Toast.makeText(Paciente_AltaDeTurno2.this, "Prueba disparador", Toast.LENGTH_SHORT).show();
                     medicoSeleccionado = (Medico) parent.getItemAtPosition(position);
                     getTurnosSegunFiltrosDelMedicoSeleccionado();
                 }
@@ -371,6 +372,16 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
         //si no hay turnos se inicializa listado...
         if (turnos == null) {
             turnos = new ArrayList<AgendaMedicoTurno>();
+        }
+        else{
+            Collections.sort(turnos, new Comparator<AgendaMedicoTurno>() {
+                @Override
+                public int compare(AgendaMedicoTurno o1, AgendaMedicoTurno o2) {
+                    String t1=o1.getTurnoDesde();
+                    String t2=o2.getTurnoDesde();
+                    return t1.compareToIgnoreCase(t2);
+                }
+            });
         }
 
         Paciente_AltaDeTurno2.MyAdapter adapter = new Paciente_AltaDeTurno2.MyAdapter(this, turnos);

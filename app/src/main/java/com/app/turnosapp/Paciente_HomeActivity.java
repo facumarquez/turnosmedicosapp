@@ -22,12 +22,15 @@ import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.AgendaPacienteService;
 import com.app.turnosapp.Interface.PacienteService;
+import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Turno;
 import com.app.turnosapp.Model.Usuario;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import retrofit2.Call;
@@ -158,6 +161,16 @@ public class Paciente_HomeActivity extends AppCompatActivity {
         //si no hay turnos se inicializa listado...
         if (turnos == null) {
             turnos = new ArrayList<Turno>();
+        }
+        else {
+            Collections.sort(turnos, new Comparator<Turno>() {
+                @Override
+                public int compare(Turno o1, Turno o2) {
+                    String t1=o1.getFechaTurno()+o1.getTurnoDesde();
+                    String t2=o2.getFechaTurno()+o2.getTurnoDesde();
+                    return t1.compareToIgnoreCase(t2);
+                }
+            });
         }
 
         MyAdapter adapter = new MyAdapter(this, turnos, R.drawable.confirm, R.drawable.bin);
