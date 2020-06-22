@@ -52,7 +52,8 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private Especialidad especialidadSeleccionada;
     private List<Especialidad> listaEspecialidades = new ArrayList<Especialidad>();
 
-    private ArrayList<String> listaFechasCalendario =  new ArrayList<String>();
+    private ArrayList<String> listaFechasSeleccionadas =  new ArrayList<String>();
+
     private List<AgendaMedicoFecha> fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
 
 
@@ -69,8 +70,8 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
            public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechasAgenda) {
                fechasAgendaMedico = fechasAgenda;
 
-               if(fechasAgenda!=null){
-                  marcarFechasCargadasEnCalandario();
+               if(fechasAgenda != null){
+                   marcarFechasOcupadasEnCalendario();
                }
            }
        });
@@ -120,12 +121,20 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
                 if (Marcado) {
                     calendarView.unMarkDate(date);
-
-                    listaFechasCalendario.remove(fechaFormatoJapones);
+                    listaFechasSeleccionadas.remove(fechaFormatoJapones);
+                    //marcarFechasOcupadasEnCalendario();
+                    marcarFechasSeleccionadasEnCalendario();
 
                 } else {
-                    calendarView.markDate(date);
-                    listaFechasCalendario.add(fechaFormatoJapones);
+                    calendarView.getMarkedDates().getAll().clear();
+                    //marcarFechasOcupadasEnCalendario();
+                    marcarFechasSeleccionadasEnCalendario();
+                   calendarView.markDate(date);
+                     if(listaFechasSeleccionadas.contains(fechaFormatoJapones)) {
+                        //calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
+                    }
+                    calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.GREEN)));
+                    listaFechasSeleccionadas.add(fechaFormatoJapones);
                 }
             }
         });
@@ -134,7 +143,14 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         btHorarios.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
 
-                for (String fecha : listaFechasCalendario){
+                fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
+                if (listaFechasSeleccionadas== null || listaFechasSeleccionadas.size() == 0){
+                    fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
+                }
+
+                Collections.sort(listaFechasSeleccionadas);
+
+                for (String fecha : listaFechasSeleccionadas){
                     fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
                 }
                 //TODO: ver si poner en null el objeto......manejar click del calendario
@@ -156,7 +172,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         btEliminarHorarios.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
 
-                for (String fecha : listaFechasCalendario){
+                for (String fecha : listaFechasSeleccionadas){
                     fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
                 }
 
@@ -262,7 +278,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         });
     }
 
-    private void marcarFechasCargadasEnCalandario(){
+    private void marcarFechasOcupadasEnCalendario(){
 
         for (AgendaMedicoFecha fecha:fechasAgendaMedico) {
             int dia,mes,anio;
@@ -270,7 +286,26 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             mes = Integer.valueOf(fecha.getFecha().substring(4,6));
             anio = Integer.valueOf(fecha.getFecha().substring(0,4));
             calendarView.markDate(
-                    new DateData(anio, mes, dia).setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
+                    new DateData(anio, mes, dia).setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
+        }
+    }
+
+    private void marcarFechasSeleccionadasEnCalendario() {
+        calendarView.getMarkedDates().getAll().clear();
+        if(listaFechasSeleccionadas != null) {
+            if(!listaFechasSeleccionadas.isEmpty()) {
+                for (String a : listaFechasSeleccionadas) {
+                    DateData d = new DateData(Integer.valueOf(a.substring(0, 4)), Integer.valueOf(a.substring(4, 6)), Integer.valueOf(a.substring(6, 8)));
+                    calendarView.markDate(
+                            d.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.GREEN))
+                    );
+                }
+            }
+            else{
+                //Fix choto
+                calendarView.markDate(2015, 10, 7);
+                calendarView.unMarkDate(2015, 10, 7);
+            }
         }
     }
 
