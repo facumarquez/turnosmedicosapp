@@ -53,6 +53,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private List<Especialidad> listaEspecialidades = new ArrayList<Especialidad>();
 
     private ArrayList<String> listaFechasSeleccionadas =  new ArrayList<String>();
+    private ArrayList<String> listaFechasOcupadas =  new ArrayList<String>();
 
     private List<AgendaMedicoFecha> fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
 
@@ -64,7 +65,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
         Intent intentAgendaMedico = getIntent();
         agendaMedico = (AgendaMedico)intentAgendaMedico.getSerializableExtra(("agendaMedico"));
-/*
+
        obtenerFechasAgenda(new IAgendaMedicoFechaCallback() {
            @Override
            public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechasAgenda) {
@@ -75,7 +76,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                }
            }
        });
-*/
+
 
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
         getEspecialidadesDelMedico(agendaMedico.getMedico().getIdUsuario());
@@ -122,19 +123,14 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 if (Marcado) {
                     calendarView.unMarkDate(date);
                     listaFechasSeleccionadas.remove(fechaFormatoJapones);
-                    //marcarFechasOcupadasEnCalendario();
-                    marcarFechasSeleccionadasEnCalendario();
-
+                    marcarFechasOcupadasEnCalendario();
                 } else {
-                    calendarView.getMarkedDates().getAll().clear();
                     //marcarFechasOcupadasEnCalendario();
-                    marcarFechasSeleccionadasEnCalendario();
-                   calendarView.markDate(date);
-                     if(listaFechasSeleccionadas.contains(fechaFormatoJapones)) {
-                        //calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
-                    }
-                    calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.GREEN)));
                     listaFechasSeleccionadas.add(fechaFormatoJapones);
+                    if(listaFechasOcupadas.contains(fechaFormatoJapones)) {
+                        calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
+                     }
+                    calendarView.markDate(date);
                 }
             }
         });
@@ -280,6 +276,8 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
     private void marcarFechasOcupadasEnCalendario(){
 
+        listaFechasOcupadas = new ArrayList<String>();
+
         for (AgendaMedicoFecha fecha:fechasAgendaMedico) {
             int dia,mes,anio;
             dia = Integer.valueOf(fecha.getFecha().substring(6,8));
@@ -287,11 +285,12 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             anio = Integer.valueOf(fecha.getFecha().substring(0,4));
             calendarView.markDate(
                     new DateData(anio, mes, dia).setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
+            listaFechasOcupadas.add(fecha.getFecha());
         }
     }
 
     private void marcarFechasSeleccionadasEnCalendario() {
-        calendarView.getMarkedDates().getAll().clear();
+        //calendarView.getMarkedDates().getAll().clear();
         if(listaFechasSeleccionadas != null) {
             if(!listaFechasSeleccionadas.isEmpty()) {
                 for (String a : listaFechasSeleccionadas) {
