@@ -14,10 +14,4 @@
         <item>Noviembre</item>
         <item>Diciembre</item>
     </string-array>
-
-    <string-array name="anios_array">
-        <item>2020</item>
-        <item>2021</item>
-    </string-array>
-
 </resources>

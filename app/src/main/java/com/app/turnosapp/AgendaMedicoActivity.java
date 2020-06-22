@@ -71,8 +71,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
         adapterMeses.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spMeses.setAdapter(adapterMeses);
 
-        ArrayAdapter<CharSequence> adapterAnios = ArrayAdapter.createFromResource(this,
-                R.array.anios_array, android.R.layout.simple_spinner_item);
+        ArrayAdapter<String> adapterAnios =  new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, StringHelper.obtenerAniosAgendaMedico());
         adapterAnios.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spAnios.setAdapter(adapterAnios);
 
