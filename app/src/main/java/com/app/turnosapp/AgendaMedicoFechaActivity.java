@@ -1,7 +1,9 @@
 package com.app.turnosapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
@@ -17,12 +19,12 @@ import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Interface.AgendaMedicoFechaService;
 import com.app.turnosapp.Interface.AgendaMedicoHorarioService;
-import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Interface.MedicoService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
-import com.app.turnosapp.Model.AgendaMedicoHorario;
 import com.app.turnosapp.Model.Especialidad;
+import com.app.turnosapp.Model.ManejoErrores.MensajeError;
+import com.google.gson.Gson;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -36,8 +38,8 @@ import retrofit2.Response;
 import sun.bob.mcalendarview.MCalendarView;
 import sun.bob.mcalendarview.MarkStyle;
 import sun.bob.mcalendarview.listeners.OnDateClickListener;
+import sun.bob.mcalendarview.listeners.OnMonthChangeListener;
 import sun.bob.mcalendarview.vo.DateData;
-import sun.bob.mcalendarview.vo.MarkedDates;
 
 public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
@@ -45,7 +47,6 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private Spinner spEspecialidades;
     private Button btHorarios;
     private Button btEliminarHorarios;
-    private Button btConfirmarAgenda;
 
     private AgendaMedico agendaMedico;
 
@@ -74,9 +75,15 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                if(fechasAgenda != null){
                    marcarFechasOcupadasEnCalendario();
                }
+
+               //FACU
+               if(fechasAgendaMedico!=null) {
+                   for (AgendaMedicoFecha fecha : fechasAgendaMedico) {
+                       listaFechasOcupadas.add(fecha.getFecha());
+                   }
+               }
            }
        });
-
 
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
         getEspecialidadesDelMedico(agendaMedico.getMedico().getIdUsuario());
@@ -84,12 +91,9 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         calendarView = (MCalendarView) findViewById(R.id.mcvFechasMedico);
         calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
 
-
-
-
         btHorarios = (Button)findViewById(R.id.btnHorarios);
         btEliminarHorarios = (Button)findViewById(R.id.btnEliminarHorarios);
-        btConfirmarAgenda = (Button)findViewById(R.id.btnConfirmarAgenda);
+
 
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -107,31 +111,36 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             @Override
             public void onDateClick(View view, DateData date) {
                 boolean Marcado = false;
-                MarkedDates diasMarcados = calendarView.getMarkedDates();
-                ArrayList markData = diasMarcados.getAll();
-                for (int i = 0; i < markData.size(); i++) {
-                    if (markData.get(i) == date) {
-                        Marcado = true;
-                    }
-                }
 
                 String anio = StringHelper.rellenarConCeros(String.valueOf(date.getYear()),4);
                 String mes = StringHelper.rellenarConCeros(String.valueOf(date.getMonth()),2);
                 String dia = StringHelper.rellenarConCeros(String.valueOf(date.getDay()),2);
                 String fechaFormatoJapones = anio + mes + dia;
 
+                if(listaFechasSeleccionadas.contains(fechaFormatoJapones)){
+                    Marcado=true;
+                }
+
                 if (Marcado) {
-                    calendarView.unMarkDate(date);
                     listaFechasSeleccionadas.remove(fechaFormatoJapones);
                     marcarFechasOcupadasEnCalendario();
+                    marcarFechasSeleccionadasEnCalendario();
                 } else {
-                    //marcarFechasOcupadasEnCalendario();
                     listaFechasSeleccionadas.add(fechaFormatoJapones);
+                    marcarFechasOcupadasEnCalendario();
+                    marcarFechasSeleccionadasEnCalendario();
                     if(listaFechasOcupadas.contains(fechaFormatoJapones)) {
                         calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
-                     }
-                    calendarView.markDate(date);
+                    }
+                    calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.BLUE)));
                 }
+            }
+        });
+
+        calendarView.setOnMonthChangeListener(new OnMonthChangeListener() {
+            @Override
+            public void onMonthChange(int year, int month) {
+                startActivity(getIntent());
             }
         });
 
@@ -140,7 +149,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             public void onClick(android.view.View view){
 
                 fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
-                if (listaFechasSeleccionadas== null || listaFechasSeleccionadas.size() == 0){
+                if (listaFechasSeleccionadas == null || listaFechasSeleccionadas.size() == 0){
                     fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
                 }
 
@@ -153,7 +162,10 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
                     @Override
                     public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
-                        fechasAgendaMedico = fechas;
+                        if(fechas!= null){
+                            fechasAgendaMedico = fechas;
+                        }
+
                         Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
                         intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
                         intent.putExtra("agendaMedico", (Serializable) agendaMedico);
@@ -164,31 +176,81 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             }
         });
 
-
         btEliminarHorarios.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
+                dialogEliminarHorarios(fechasAgendaMedico);
+            }
+        });
+    }
 
-                for (String fecha : listaFechasSeleccionadas){
-                    fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
-                }
-
-                crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
-                    @Override
-                    public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
-                        fechasAgendaMedico = fechas;
-                        Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
-                        intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
-                        startActivity(intent);
+    //FACU
+    private void marcarFechasSeleccionadasEnCalendario() {
+        if(listaFechasSeleccionadas != null) {
+            if(!listaFechasSeleccionadas.isEmpty()) {
+                for (String a : listaFechasSeleccionadas) {
+                    DateData d = new DateData(Integer.valueOf(a.substring(0, 4)), Integer.valueOf(a.substring(4, 6)), Integer.valueOf(a.substring(6, 8)));
+                    if(listaFechasOcupadas.contains(a)){
+                        calendarView.unMarkDate(d.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
                     }
-                });
+                    calendarView.markDate(
+                            d.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.BLUE))
+                    );
+                }
+            }
+            else{
+                //Fix choto
+                calendarView.markDate(2015, 10, 7);
+                calendarView.unMarkDate(2015, 10, 7);
+            }
+        }
+    }
+
+    //FACU
+    private void marcarFechasOcupadasEnCalendario(){
+        calendarView.getMarkedDates().getAll().clear();
+        if(fechasAgendaMedico!=null) {
+            for (AgendaMedicoFecha fecha : fechasAgendaMedico) {
+                DateData d = new DateData(Integer.valueOf(fecha.getFecha().substring(0, 4)), Integer.valueOf(fecha.getFecha().substring(4, 6)), Integer.valueOf(fecha.getFecha().substring(6, 8)));
+                calendarView.markDate(
+                        d.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED))
+                );
+            }
+        }
+    }
+
+    private void dialogEliminarHorarios(List<AgendaMedicoFecha> fechasCargadas){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Aviso!");
+        builder.setMessage("Está seguro que desea eliminar los horarios de los días seleccionados?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                List<AgendaMedicoFecha> fechasConHorariosABorrar = new ArrayList<AgendaMedicoFecha>();
+
+                if (fechasCargadas != null && fechasCargadas.size()> 0 ){
+                    for (AgendaMedicoFecha fecha:fechasCargadas) {
+                        if (listaFechasSeleccionadas.contains(fecha.getFecha())){
+                            fechasConHorariosABorrar.add(fecha);
+                        }
+                    }
+                    eliminarHorariosAgenda(fechasConHorariosABorrar);
+               }else{
+                    Toast.makeText(getApplicationContext(), "La/s fechas seleccionadas no están cargadas en el sistema!. Operación cancelada", Toast.LENGTH_SHORT).show();
+               }
             }
         });
 
-        btConfirmarAgenda.setOnClickListener(new View.OnClickListener(){
-            public void onClick(android.view.View view){
-               confirmarAgenda(agendaMedico.getId());
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
             }
         });
+
+        builder.show();
     }
 
     private void getEspecialidadesDelMedico(long idMedico){
@@ -238,7 +300,10 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<AgendaMedicoFecha>> call, Response<List<AgendaMedicoFecha>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoFechaActivity.this, "No se crearon las fechas", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AgendaMedicoFechaActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    startActivity(getIntent());
                 } else {
                     callback.getFechasAgendaMedico(response.body());
                 }
@@ -274,77 +339,21 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         });
     }
 
-    private void marcarFechasOcupadasEnCalendario(){
-
-        listaFechasOcupadas = new ArrayList<String>();
-
-        for (AgendaMedicoFecha fecha:fechasAgendaMedico) {
-            int dia,mes,anio;
-            dia = Integer.valueOf(fecha.getFecha().substring(6,8));
-            mes = Integer.valueOf(fecha.getFecha().substring(4,6));
-            anio = Integer.valueOf(fecha.getFecha().substring(0,4));
-            calendarView.markDate(
-                    new DateData(anio, mes, dia).setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
-            listaFechasOcupadas.add(fecha.getFecha());
-        }
-    }
-
-    private void marcarFechasSeleccionadasEnCalendario() {
-        //calendarView.getMarkedDates().getAll().clear();
-        if(listaFechasSeleccionadas != null) {
-            if(!listaFechasSeleccionadas.isEmpty()) {
-                for (String a : listaFechasSeleccionadas) {
-                    DateData d = new DateData(Integer.valueOf(a.substring(0, 4)), Integer.valueOf(a.substring(4, 6)), Integer.valueOf(a.substring(6, 8)));
-                    calendarView.markDate(
-                            d.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.GREEN))
-                    );
-                }
-            }
-            else{
-                //Fix choto
-                calendarView.markDate(2015, 10, 7);
-                calendarView.unMarkDate(2015, 10, 7);
-            }
-        }
-    }
-
-    private void confirmarAgenda(long idAgendaMedico) {
-
-        AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
-                (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
-
-        Call<Boolean> call = agendaMedicoService.confirmarAgenda(idAgendaMedico);
-        call.enqueue(new Callback <Boolean>() {
-            @Override
-            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-                if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoFechaActivity.this, "No se ha confirmado la agenda", Toast.LENGTH_SHORT).show();
-                } else {
-                    finish();
-                    startActivity(getIntent());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<Boolean> call, Throwable t) {
-                Toast.makeText(AgendaMedicoFechaActivity.this, "Error al confirmar la agenda", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    private void eliminarHorariosAgenda(List<AgendaMedicoHorario> horarios) {
+    private void eliminarHorariosAgenda(List<AgendaMedicoFecha> fechas) {
 
         AgendaMedicoHorarioService agendaMedicoHorarioService = RetrofitConnection.obtenerConexion
                 (getString(R.string.apiTurnosURL)).create(AgendaMedicoHorarioService.class);
 
-        Call<Void> call = agendaMedicoHorarioService.deleteHorarios(horarios);
+        Call<Void> call = agendaMedicoHorarioService.deleteHorarios(fechas);
         call.enqueue(new Callback <Void>() {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoFechaActivity.this, "No se eliminaron los horarios", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AgendaMedicoFechaActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
                 } else {
-                    finish();
+                    Toast.makeText(getApplicationContext(), "Operación confirmada!", Toast.LENGTH_SHORT).show();
                     startActivity(getIntent());
                 }
             }

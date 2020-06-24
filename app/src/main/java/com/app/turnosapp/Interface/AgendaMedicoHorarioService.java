@@ -1,5 +1,6 @@
 package com.app.turnosapp.Interface;
 
+import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.AgendaMedicoHorario;
 
 import java.util.List;
@@ -18,7 +19,7 @@ public interface AgendaMedicoHorarioService {
     @POST("AgendaMedicoHorarios/")
     Call<List<AgendaMedicoHorario>> crearHorarios(@Body List<AgendaMedicoHorario> horarios);
 
-    @DELETE("AgendaMedicoHorarios/")
-    Call<Void> deleteHorarios(@Body List<AgendaMedicoHorario> horarios);
+    @POST("AgendaMedicoHorarios/EliminarHorarios")
+    Call<Void> deleteHorarios(@Body List<AgendaMedicoFecha> fechas);
 
 }

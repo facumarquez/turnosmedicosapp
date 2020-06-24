@@ -1,16 +1,23 @@
 package com.app.turnosapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.TimePickerDialog;
 import android.content.Context;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -22,11 +29,16 @@ import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.AgendaMedicoFechaService;
 import com.app.turnosapp.Interface.AgendaMedicoHorarioService;
+import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.AgendaMedicoHorario;
+import com.app.turnosapp.Model.ManejoErrores.MensajeError;
+import com.google.gson.Gson;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 import retrofit2.Call;
@@ -42,11 +54,15 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
     private TextView tvdias;
 
-    private TimePicker tpkDesde;
-    private TimePicker tpkHasta;
+    TimePickerDialog picker;
+    EditText etDesde;
+    EditText etHasta;
+
     ListView lvHorarios;
     private Button volverAtras;
     private Button btAgregar;
+    private Button btConfirmarAgenda;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +70,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_horario_medico);
 
         volverAtras = (Button)findViewById(R.id.buttonVolver);
+        btConfirmarAgenda = (Button)findViewById(R.id.btnConfirmarAgenda);
         btAgregar = (Button)findViewById(R.id.btnAgregar);
         lvHorarios = findViewById(R.id.listView);
 
@@ -66,7 +83,48 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             tvdias.setText(tvdias.getText() + " - " + fecha.getFecha().substring(6,8));
         }
 
-        setearTimePicker();
+        etDesde = (EditText) findViewById(R.id.ethoradesde);
+        etHasta = (EditText) findViewById(R.id.ethorahasta);
+        etDesde.setInputType(InputType.TYPE_NULL);
+        etHasta.setInputType(InputType.TYPE_NULL);
+
+        etDesde.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar cldr = Calendar.getInstance();
+                int hour = cldr.get(Calendar.HOUR_OF_DAY);
+                int minutes = cldr.get(Calendar.MINUTE);
+                // time picker dialog
+                picker = new TimePickerDialog(AgendaMedicoHorarioActivity.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker tp, int hora, int minuto) {
+                                String desde = StringHelper.rellenarConCeros(String.valueOf(hora),2) + ":"+ StringHelper.rellenarConCeros(String.valueOf(minuto),2);
+                                etDesde.setText(desde);
+                            }
+                        }, hour, minutes, true);
+                picker.show();
+            }
+        });
+
+        etHasta.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                final Calendar cldr = Calendar.getInstance();
+                int hour = cldr.get(Calendar.HOUR_OF_DAY);
+                int minutes = cldr.get(Calendar.MINUTE);
+                // time picker dialog
+                picker = new TimePickerDialog(AgendaMedicoHorarioActivity.this,
+                        new TimePickerDialog.OnTimeSetListener() {
+                            @Override
+                            public void onTimeSet(TimePicker tp, int hora, int minuto) {
+                                String hasta = StringHelper.rellenarConCeros(String.valueOf(hora),2) + ":"+ StringHelper.rellenarConCeros(String.valueOf(minuto),2);
+                                etHasta.setText(hasta);
+                            }
+                        }, hour, minutes, true);
+                picker.show();
+            }
+        });
 
         obtenerHorariosDeFechasSeleccionadas(fechasAgendaSeleccionadas, new IAgendaMedicoHorarioCallback() {
             @Override
@@ -80,11 +138,17 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         //Botones
         volverAtras.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                //Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
-                //intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
+                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                 //TODO: ver si poner tambien la lista de fechas obtenidas de la pantalla anterior....
-                //startActivity(intent);
                 finish();
+                startActivity(intent);
+            }
+        });
+
+        btConfirmarAgenda.setOnClickListener(new View.OnClickListener(){
+            public void onClick(android.view.View view){
+                dialogConfirmarAgenda();
             }
         });
 
@@ -92,34 +156,106 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                for (AgendaMedicoFecha fecha:fechasAgendaSeleccionadas) {
+                if (etDesde.getText().toString().equals("")){
+                    Toast.makeText(getApplicationContext(), "Debe ingresar el horario desde!", Toast.LENGTH_SHORT).show();
+                }else if (etHasta.getText().toString().equals("")){
+                    Toast.makeText(getApplicationContext(), "Debe ingresar el horario hasta!", Toast.LENGTH_SHORT).show();
+                }else{
+                    for (AgendaMedicoFecha fecha:fechasAgendaSeleccionadas) {
 
-                    String horarioDesde,horarioHasta;
+                        AgendaMedicoHorario horarioNuevo = new AgendaMedicoHorario(etDesde.getText().toString(),etHasta.getText().toString());
+                        horarioNuevo.setAgendaMedicoFecha(fecha);
+                        horariosAgenda.add(horarioNuevo);
+                    }
 
-                    int horaDesde= tpkDesde.getCurrentHour();
-                    int horaHasta= tpkHasta.getCurrentHour();
-
-                    int minDesde=tpkDesde.getCurrentMinute();
-                    int minHasta=tpkHasta.getCurrentMinute();
-
-                    horarioDesde = StringHelper.rellenarConCeros(String.valueOf(horaDesde),2) + ":"+ StringHelper.rellenarConCeros(String.valueOf(minDesde),2);
-                    horarioHasta = StringHelper.rellenarConCeros(String.valueOf(horaHasta),2) + ":"+ StringHelper.rellenarConCeros(String.valueOf(minHasta),2);
-
-                    AgendaMedicoHorario horarioNuevo = new AgendaMedicoHorario(horarioDesde,horarioHasta);
-                    horarioNuevo.setAgendaMedicoFecha(fecha);
-
-                    horariosAgenda.add(horarioNuevo);
+                    crearHorariosAgenda(horariosAgenda, new IAgendaMedicoHorarioCallback() {
+                        @Override
+                        public void getHorariosAgendaMedico(List<AgendaMedicoHorario> horarios) {
+                            //horariosAgenda = horarios;
+                            //adapter.notifyDataSetChanged();
+                            finish();
+                            startActivity(getIntent());
+                        }
+                    });
                 }
 
-                crearHorariosAgenda(horariosAgenda, new IAgendaMedicoHorarioCallback() {
-                    @Override
-                    public void getHorariosAgendaMedico(List<AgendaMedicoHorario> horarios) {
-                        //horariosAgenda = horarios;
-                        //adapter.notifyDataSetChanged();
-                        finish();
-                        startActivity(getIntent());
-                    }
-                });
+            }
+        });
+    }
+
+    private void dialogEliminarHorario(int position){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Aviso!");
+        builder.setMessage("Está seguro que desea eliminar el horario del día seleccionado?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                eliminarHorario(position);
+
+            }
+        });
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void dialogConfirmarAgenda(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Aviso!");
+        builder.setMessage("Está seguro que desea confirmar la agenda para los días seleccionados?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                confirmarAgenda(agendaMedico.getId());
+
+            }
+        });
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void confirmarAgenda(long idAgendaMedico) {
+
+        AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
+
+        Call<Boolean> call = agendaMedicoService.confirmarAgenda(idAgendaMedico);
+        call.enqueue(new Callback <Boolean>() {
+            @Override
+            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha confirmado la agenda", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
+                    intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, "Se ha confirmado los días de la agenda", Toast.LENGTH_SHORT).show();
+                    finish();
+                    startActivity(intent);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Boolean> call, Throwable t) {
+                Toast.makeText(AgendaMedicoHorarioActivity.this, "Error al confirmar la agenda", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -128,19 +264,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
         adapter = new MyAdapter( this, horarios, R.drawable.confirm,R.drawable.bin);
         lvHorarios.setAdapter(adapter);
-    }
-
-
-    private void setearTimePicker(){
-        tpkDesde = (TimePicker) findViewById(R.id.tpDesde);
-        tpkDesde.setIs24HourView(true);
-        tpkDesde.setCurrentHour(9);
-        tpkDesde.setCurrentMinute(0);
-
-        tpkHasta = (TimePicker) findViewById(R.id.tpHasta);
-        tpkHasta.setIs24HourView(true);
-        tpkHasta.setCurrentHour(18);
-        tpkHasta.setCurrentMinute(0);
     }
 
     private void crearHorariosAgenda(List<AgendaMedicoHorario> horarios, final IAgendaMedicoHorarioCallback callback) {
@@ -189,7 +312,32 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         });
     }
 
+    private void eliminarHorario(final int position) {
 
+        AgendaMedicoHorarioService agendaMedicoHorarioService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoHorarioService.class);
+
+        Call<Void> call = agendaMedicoHorarioService.deleteAgendaMedicoHorario (horariosAgenda.get(position).getId());
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Operación confirmada!", Toast.LENGTH_SHORT).show();
+                    finish();
+                    startActivity(getIntent());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha podido eliminar el horario", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     class MyAdapter extends ArrayAdapter<AgendaMedicoHorario> {
 
@@ -227,7 +375,9 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             ivEliminar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    eliminarHorario(position);
+
+                    dialogEliminarHorario(position);
+
                 }
             });
             ivConfirmar.setOnClickListener(new View.OnClickListener() {
@@ -240,34 +390,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             return row;
         }
 
-        private void eliminarHorario(final int position) {
-            //TODO:sacar en un futuro
-            //adapter.remove(horariosAgenda.get(position));
-            //adapter.remove(horariosAgenda.get(position));
-            AgendaMedicoHorarioService agendaMedicoHorarioService = RetrofitConnection.obtenerConexion
-                    (getString(R.string.apiTurnosURL)).create(AgendaMedicoHorarioService.class);
-
-            Call<Void> call = agendaMedicoHorarioService.deleteAgendaMedicoHorario (horariosAgenda.get(position).getId());
-            call.enqueue(new Callback<Void>() {
-                @Override
-                public void onResponse(Call<Void> call, Response<Void> response) {
-                    if (!response.isSuccessful()) {
-                        Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha podido eliminar el horario", Toast.LENGTH_SHORT).show();
-                    } else {
-                        finish();
-                        startActivity(getIntent());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Void> call, Throwable t) {
-                    Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha podido eliminar el horario", Toast.LENGTH_SHORT).show();
-                }
-            });
-        }
-
-
-        private void modificarhorario(final int position) {
+         private void modificarhorario(final int position) {
 /*
             AgendaPacienteService agendaPacienteService = RetrofitConnection.obtenerConexion
                     (getString(R.string.apiTurnosURL)).create(AgendaPacienteService.class);
