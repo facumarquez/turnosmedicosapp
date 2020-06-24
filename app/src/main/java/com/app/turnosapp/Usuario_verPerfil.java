@@ -4,6 +4,8 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
+import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -52,23 +54,34 @@ public class Usuario_verPerfil extends AppCompatActivity {
             public void onClick(android.view.View view) {
                 nuevoUsuario.setMail(etMail.getText().toString().trim());
                 nuevoUsuario.setTelefono((etTelefono.getText().toString().trim()));
-                actualizarUsuario(nuevoUsuario.getIdUsuario(), new IUsuarioCallback() {
-                    @Override
-                    public void getUsuario(Usuario user) {
-                        nuevoUsuario = user;
 
-                        if (tipoUsuario.equals("paciente".toUpperCase())) {
-                            Intent intentPaciente = new Intent(Usuario_verPerfil.this, Paciente_HomeActivity.class);
-                            intentPaciente.putExtra("usuario", (Serializable) nuevoUsuario);
-                            startActivity(intentPaciente);
+                if (etMail.getText().toString().trim().equals("")) {
+                    Toast.makeText(Usuario_verPerfil.this, "Debe completar el campo e-mail", Toast.LENGTH_SHORT).show();
+                }else if (etTelefono.getText().toString().trim().equals("")) {
+                    Toast.makeText(Usuario_verPerfil.this, "Debe completar el campo teléfono", Toast.LENGTH_SHORT).show();
+                }else if (!esMailValido(etMail.getText().toString().trim())){
+                    Toast.makeText(Usuario_verPerfil.this, "Formato de e-mail inválido", Toast.LENGTH_SHORT).show();
+                }else if (!esTelefonoValido(etTelefono.getText().toString().trim())){
+                    Toast.makeText(Usuario_verPerfil.this, "Formato de teléfono inválido", Toast.LENGTH_SHORT).show();
+                }else{
+                    actualizarUsuario(nuevoUsuario.getIdUsuario(), new IUsuarioCallback() {
+                        @Override
+                        public void getUsuario(Usuario user) {
+                            nuevoUsuario = user;
+
+                            if (tipoUsuario.equals("paciente".toUpperCase())) {
+                                Intent intentPaciente = new Intent(Usuario_verPerfil.this, Paciente_HomeActivity.class);
+                                intentPaciente.putExtra("usuario", (Serializable) nuevoUsuario);
+                                startActivity(intentPaciente);
+                            }
+                            if (tipoUsuario.equals("medico".toUpperCase())) {
+                                Intent intentMedico = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
+                                intentMedico.putExtra("usuario", (Serializable) nuevoUsuario);
+                                startActivity(intentMedico);
+                            }
                         }
-                        if (tipoUsuario.equals("medico".toUpperCase())) {
-                            Intent intentMedico = new Intent(Usuario_verPerfil.this, AgendaMedicoActivity.class);
-                            intentMedico.putExtra("usuario", (Serializable) nuevoUsuario);
-                            startActivity(intentMedico);
-                        }
-                    }
-                });
+                    });
+                }
             }
         });
 
@@ -77,6 +90,14 @@ public class Usuario_verPerfil extends AppCompatActivity {
                 finish();
             }
         });
+    }
+
+    private static boolean esMailValido(CharSequence target) {
+        return (!TextUtils.isEmpty(target) && Patterns.EMAIL_ADDRESS.matcher(target).matches());
+    }
+
+    private static boolean esTelefonoValido(CharSequence target) {
+        return (!TextUtils.isEmpty(target) && Patterns.PHONE.matcher(target).matches());
     }
 
     private void actualizarUsuario(long idUsuario, final IUsuarioCallback callback) {
