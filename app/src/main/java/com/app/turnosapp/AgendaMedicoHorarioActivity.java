@@ -61,7 +61,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
     ListView lvHorarios;
     private Button volverAtras;
     private Button btAgregar;
-    private Button btConfirmarAgenda;
+    private Button btGenerarTurnos;
 
 
     @Override
@@ -70,7 +70,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         setContentView(R.layout.activity_horario_medico);
 
         volverAtras = (Button)findViewById(R.id.buttonVolver);
-        btConfirmarAgenda = (Button)findViewById(R.id.btnConfirmarAgenda);
+        btGenerarTurnos = (Button)findViewById(R.id.btnGenerarTurnos);
         btAgregar = (Button)findViewById(R.id.btnAgregar);
         lvHorarios = findViewById(R.id.listView);
 
@@ -146,7 +146,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             }
         });
 
-        btConfirmarAgenda.setOnClickListener(new View.OnClickListener(){
+        btGenerarTurnos.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
                 dialogConfirmarAgenda();
             }
@@ -212,7 +212,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Aviso!");
-        builder.setMessage("Está seguro que desea confirmar la agenda para los días seleccionados?");
+        builder.setMessage("Está seguro que desea generar los turnos para los días seleccionados?");
         builder.setCancelable(false);
         builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
             @Override
@@ -243,11 +243,11 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha confirmado la agenda", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, "No se han generado los turnos", Toast.LENGTH_SHORT).show();
                 } else {
                     Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
                     intent.putExtra("agendaMedico", (Serializable) agendaMedico);
-                    Toast.makeText(AgendaMedicoHorarioActivity.this, "Se ha confirmado los días de la agenda", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, "Se han generado los turnos", Toast.LENGTH_SHORT).show();
                     finish();
                     startActivity(intent);
                 }
@@ -255,7 +255,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
             @Override
             public void onFailure(Call<Boolean> call, Throwable t) {
-                Toast.makeText(AgendaMedicoHorarioActivity.this, "Error al confirmar la agenda", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AgendaMedicoHorarioActivity.this, "Error al generar los turnos", Toast.LENGTH_SHORT).show();
             }
         });
     }

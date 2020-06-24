@@ -76,11 +76,11 @@
             android:text="Volver" />
 
     <Button
-        android:id="@+id/btnConfirmarAgenda"
+        android:id="@+id/btnGenerarTurnos"
         android:layout_width="180dp"
         android:layout_height="50dp"
         android:layout_gravity="center"
-        android:text="CONFIRMAR AGENDA"/>
+        android:text="GENERAR TURNOS"/>
     </LinearLayout>
 
 </LinearLayout>
