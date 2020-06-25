@@ -47,7 +47,9 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private Spinner spEspecialidades;
     private Button btHorarios;
     private Button btEliminarHorarios;
+    private Button btTurnos;
 
+    private String diaSeleccionado;
     private AgendaMedico agendaMedico;
 
     private Especialidad especialidadSeleccionada;
@@ -93,6 +95,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
         btHorarios = (Button)findViewById(R.id.btnHorarios);
         btEliminarHorarios = (Button)findViewById(R.id.btnEliminarHorarios);
+        btTurnos = (Button)findViewById(R.id.btnTurnos);
 
 
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -116,6 +119,8 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 String mes = StringHelper.rellenarConCeros(String.valueOf(date.getMonth()),2);
                 String dia = StringHelper.rellenarConCeros(String.valueOf(date.getDay()),2);
                 String fechaFormatoJapones = anio + mes + dia;
+
+                diaSeleccionado = fechaFormatoJapones;
 
                 if(listaFechasSeleccionadas.contains(fechaFormatoJapones)){
                     Marcado=true;
@@ -170,7 +175,6 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                         intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
                         intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                         startActivity(intent);
-                        //finish();
                     }
                 });
             }
@@ -179,6 +183,20 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         btEliminarHorarios.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
                 dialogEliminarHorarios(fechasAgendaMedico);
+            }
+        });
+
+        btTurnos.setOnClickListener(new View.OnClickListener(){
+            public void onClick(android.view.View view){
+
+                if (diaSeleccionado == null){
+                    Toast.makeText(getApplicationContext(), "Debe seleccionar una fecha", Toast.LENGTH_SHORT).show();
+                }else{
+                    Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoTurnoActivity.class);
+                    intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                    intent.putExtra("diaSeleccionado",  diaSeleccionado);
+                    startActivity(intent);
+                }
             }
         });
     }

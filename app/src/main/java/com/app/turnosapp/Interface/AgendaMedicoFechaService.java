@@ -58,4 +58,7 @@ public interface AgendaMedicoFechaService {
 
     @POST("AgendaMedicoFechas/Horarios")
     Call<List<AgendaMedicoHorario>> obtenerHorariosDeFechas(@Body List<AgendaMedicoFecha> fechasAgenda);
+
+    @GET("AgendaMedicoFechas/{idAgendaMedicoFecha}/Turnos")
+    Call<List<AgendaMedicoTurno>> obtenerTurnosDeFecha(@Path("idAgendaMedicoFecha") long idAgendaMedicoFecha);
 }

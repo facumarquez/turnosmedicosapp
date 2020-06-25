@@ -6,22 +6,24 @@
     >
 
     <TextView
+        android:id="@+id/tvFecha"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="5dp"
         android:layout_marginTop="10dp"
-        android:text="FECHA: 04/05/2020"
+        android:text="FECHA: "
         android:textSize="20dp"/>
 
     <ListView
-        android:id="@+id/listView"
+        android:id="@+id/lvturnos"
         android:layout_width="match_parent"
+        android:layout_marginTop="20dp"
         android:layout_height="410dp">
 
     </ListView>
 
     <Button
-        android:id="@+id/buttonVolver"
+        android:id="@+id/btnvolver"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Volver" />

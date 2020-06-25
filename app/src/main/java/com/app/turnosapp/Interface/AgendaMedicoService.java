@@ -1,6 +1,7 @@
 package com.app.turnosapp.Interface;
 
 import com.app.turnosapp.Model.AgendaMedico;
+import com.app.turnosapp.Model.AgendaMedicoFecha;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
@@ -19,5 +20,9 @@ public interface AgendaMedicoService {
 
     @POST("AgendaMedicos/{idAgendaMedico}/ConfirmarAgenda")
     Call<Boolean> confirmarAgenda(@Path("idAgendaMedico") long idAgendaMedico);
+
+    @GET("AgendaMedicos/{idAgendaMedico}/{fecha}")
+    Call<AgendaMedicoFecha> obtenerFechaEspecificaDeAgenda(@Path("idAgendaMedico") long idAgendaMedico,
+                                                           @Path("fecha") String fecha);
 
 }

@@ -1,18 +1,18 @@
 package com.app.turnosapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -20,98 +20,220 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import android.os.Bundle;
+import com.app.turnosapp.Callbacks.IAgendaMedicoTurnoCallback;
+import com.app.turnosapp.Helpers.RetrofitConnection;
+import com.app.turnosapp.Helpers.StringHelper;
+import com.app.turnosapp.Interface.AgendaMedicoFechaService;
+import com.app.turnosapp.Interface.AgendaMedicoService;
+import com.app.turnosapp.Interface.AgendaMedicoTurnoService;
+import com.app.turnosapp.Model.AgendaMedico;
+import com.app.turnosapp.Model.AgendaMedicoFecha;
+import com.app.turnosapp.Model.AgendaMedicoTurno;
+import com.app.turnosapp.Model.ManejoErrores.MensajeError;
+import com.google.gson.Gson;
 
-import java.io.LineNumberInputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class AgendaMedicoTurnoActivity extends AppCompatActivity {
 
-    private Button volverAtras;
+    MyAdapter adapter;
+    TextView tvFecha;
+    ListView lvTurnos;
+    private Button btAtras;
 
-    ListView listView;
-    String mTitle[] = {"04/05/2020", "11/05/2020", "18/05/2020", "25/05/2020"};
-    String mDescription[] = {"08:00 - 12:00", "08:00 - 12:00", "08:00 - 12:00", "08:00 - 12:00"};
-    int images_confirm[] = {R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm, R.drawable.confirm};
-    int images_delete[] = {R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin, R.drawable.bin};
-    // so our images and other things are set in array
+    private AgendaMedico agendaMedico;
+    private AgendaMedicoFecha fechaSeleccionada;
+    private String diaSeleccionado;
 
-    // now paste some images in drawable
+    private List<AgendaMedicoTurno> turnosAgenda = new ArrayList<AgendaMedicoTurno>();
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_turno_medico);
 
-        volverAtras = (Button)findViewById(R.id.buttonVolver);
+        Intent intentAgendaMedico = getIntent();
+        agendaMedico = (AgendaMedico)intentAgendaMedico.getSerializableExtra(("agendaMedico"));
+        diaSeleccionado = (String)intentAgendaMedico.getSerializableExtra(("diaSeleccionado"));
 
-        listView = findViewById(R.id.listView);
-        // now create an adapter class
+        tvFecha = findViewById(R.id.tvFecha);
+        lvTurnos = findViewById(R.id.lvturnos);
+        btAtras = (Button)findViewById(R.id.btnvolver);
 
-        MyAdapter adapter = new MyAdapter(this, mTitle, mDescription, images_confirm,images_delete);
-        listView.setAdapter(adapter);
-        // there is my mistake...
-        // now again check this..
-
-        // now set item click on list view
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Toast.makeText(AgendaMedicoTurnoActivity.this, parent.getItemAtPosition(position).toString(), Toast.LENGTH_SHORT).show();
-            }
-        });
-        // so item click is done now check list view
 
         //Botones
-        volverAtras.setOnClickListener(new View.OnClickListener(){
+        btAtras.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
                 Intent intent = new Intent(AgendaMedicoTurnoActivity.this, AgendaMedicoFechaActivity.class);
+                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                 startActivity(intent);
             }
         });
 
+        obtenerFechaEspecifica(agendaMedico, diaSeleccionado);
+
+        tvFecha.setText(tvFecha.getText() + StringHelper.convertirFechaAFormato_dd_mm_aaaa(diaSeleccionado));
 
     }
 
-    class MyAdapter extends ArrayAdapter<String> {
+    class MyAdapter extends ArrayAdapter<AgendaMedicoTurno> {
 
         Context context;
-        String rTitle[];
-        String rDescription[];
-        int rImgs_confirm[];
-        int rImgs_delete[];
+        List<AgendaMedicoTurno> turnos;
+        int rImgs_delete;
 
-        MyAdapter (Context c, String title[], String description[], int imgs_confirm[],int imgs_delete[]) {
-            super(c, R.layout.paciente_item_turno, R.id.textView1, title);
+        MyAdapter (Context c, List<AgendaMedicoTurno> turnosFecha, int imgs_confirm,int imgs_delete) {
+            super(c, R.layout.medico_item_turno, R.id.tvFecha, turnosFecha);
             this.context = c;
-            this.rTitle = title;
-            this.rDescription = description;
-            this.rImgs_confirm = imgs_confirm;
             this.rImgs_delete = imgs_delete;
-
+            this.turnos = turnosFecha;
         }
 
         @NonNull
         @Override
-        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+        public View getView(final int position, @Nullable View convertView, @NonNull ViewGroup parent) {
             LayoutInflater layoutInflater = (LayoutInflater)getApplicationContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View row = layoutInflater.inflate(R.layout.paciente_item_turno, parent, false);
-            ImageView ivConfirmar = row.findViewById(R.id.ivconfirmar);
+            View row = layoutInflater.inflate(R.layout.medico_item_turno, parent, false);
             ImageView ivEliminar = row.findViewById(R.id.iveliminar);
-            TextView myTitle = row.findViewById(R.id.textView1);
-            TextView myDescription = row.findViewById(R.id.textView2);
+            TextView turno = row.findViewById(R.id.tvTurno);
+            TextView estado = row.findViewById(R.id.tvEstado);
+            ivEliminar.setImageResource(rImgs_delete);
 
-            // now set our resources on views
-            ivConfirmar.setImageResource(rImgs_confirm[position]);
-            ivEliminar.setImageResource(rImgs_delete[position]);
-            myTitle.setText(rTitle[position]);
-            myDescription.setText(rDescription[position]);
+            turno.setText(turnosAgenda.get(position).getTurnoDesde());
+            estado.setText(turnosAgenda.get(position).getEstado().toString());
 
-
-
+            ivEliminar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialogEliminarTurno(position);
+                }
+            });
 
             return row;
         }
+    }
+
+    private void setearAdapter(List<AgendaMedicoTurno> turnos){
+
+        adapter = new MyAdapter( this, turnos, R.drawable.confirm,R.drawable.bin);
+        lvTurnos.setAdapter(adapter);
+    }
+
+    private void dialogEliminarTurno(int position){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Aviso!");
+        builder.setMessage("Está seguro que desea eliminar el turno seleccionado?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+
+                eliminarTurno(position);
+
+            }
+        });
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.show();
+    }
+
+    private void eliminarTurno(final int position) {
+
+        AgendaMedicoTurnoService agendaMedicoTurnoService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoTurnoService.class);
+
+        Call<Void> call = agendaMedicoTurnoService.deleteTurno(turnosAgenda.get(position).getId());
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AgendaMedicoTurnoActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(getApplicationContext(), "Operación confirmada!", Toast.LENGTH_SHORT).show();
+                    finish();
+                    startActivity(getIntent());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(AgendaMedicoTurnoActivity.this, "No se ha podido eliminar el turno", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void obtenerTurnosDeFechaSeleccionada(AgendaMedicoFecha fechaSeleccionada, final IAgendaMedicoTurnoCallback callback) {
+
+        AgendaMedicoFechaService agendaMedicoFechaService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoFechaService.class);
+
+        Call<List<AgendaMedicoTurno>> call = agendaMedicoFechaService.obtenerTurnosDeFecha(fechaSeleccionada.getId());
+        call.enqueue(new Callback <List<AgendaMedicoTurno>>() {
+            @Override
+            public void onResponse(Call<List<AgendaMedicoTurno>> call, Response<List<AgendaMedicoTurno>> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudieron obtener los turnos", Toast.LENGTH_SHORT).show();
+                } else {
+                    callback.getTurnosAgendaMedico(response.body());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<AgendaMedicoTurno>> call, Throwable t) {
+                Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudieron obtener los turnos", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void obtenerFechaEspecifica(AgendaMedico agendaMedico, String fecha) {
+
+        AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
+
+        Call<AgendaMedicoFecha> call = agendaMedicoService.obtenerFechaEspecificaDeAgenda(agendaMedico.getId(),fecha);
+        call.enqueue(new Callback <AgendaMedicoFecha>() {
+            @Override
+            public void onResponse(Call<AgendaMedicoFecha> call, Response<AgendaMedicoFecha> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudo obtener la fecha", Toast.LENGTH_SHORT).show();
+                } else {
+                    fechaSeleccionada = response.body();
+
+                    obtenerTurnosDeFechaSeleccionada(fechaSeleccionada, new IAgendaMedicoTurnoCallback() {
+                        @Override
+                        public void getTurnosAgendaMedico(List<AgendaMedicoTurno> turnos) {
+                            turnosAgenda = turnos;
+                            if (turnos == null || turnos.size() == 0){
+                                Toast.makeText(AgendaMedicoTurnoActivity.this, "No hay turnos para la fecha especificada", Toast.LENGTH_SHORT).show();
+                            }
+                            setearAdapter(turnos);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void onFailure(Call<AgendaMedicoFecha> call, Throwable t) {
+                Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudo obtener la fecha", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 }
 

@@ -69,6 +69,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_horario_medico);
 
+        tvdias = (TextView) findViewById(R.id.tvdias);
         volverAtras = (Button)findViewById(R.id.buttonVolver);
         btGenerarTurnos = (Button)findViewById(R.id.btnGenerarTurnos);
         btAgregar = (Button)findViewById(R.id.btnAgregar);
@@ -78,7 +79,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         fechasAgendaSeleccionadas = (List<AgendaMedicoFecha>)intentAgendaMedicoFecha.getSerializableExtra(("fechasAgenda"));
         agendaMedico = (AgendaMedico)intentAgendaMedicoFecha.getSerializableExtra(("agendaMedico"));
 
-        tvdias = (TextView) findViewById(R.id.tvdias);
         for (AgendaMedicoFecha fecha: fechasAgendaSeleccionadas) {
             tvdias.setText(tvdias.getText() + " - " + fecha.getFecha().substring(6,8));
         }
@@ -155,7 +155,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         btAgregar.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-
+                //TODO: validar que entre desde y hasta haya intervalo de 15 min...
                 if (etDesde.getText().toString().equals("")){
                     Toast.makeText(getApplicationContext(), "Debe ingresar el horario desde!", Toast.LENGTH_SHORT).show();
                 }else if (etHasta.getText().toString().equals("")){
