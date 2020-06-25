@@ -18,14 +18,16 @@
         android:id="@+id/lvturnos"
         android:layout_width="match_parent"
         android:layout_marginTop="20dp"
+        android:layout_marginLeft="20dp"
         android:layout_height="410dp">
 
     </ListView>
 
     <Button
         android:id="@+id/btnvolver"
-        android:layout_width="match_parent"
+        android:layout_width="150dp"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="Volver" />
 
 </LinearLayout>

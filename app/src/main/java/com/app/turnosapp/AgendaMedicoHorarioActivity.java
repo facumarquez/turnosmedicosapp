@@ -343,13 +343,11 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
         Context context;
         List<AgendaMedicoHorario> horarios;
-        int rImgs_confirm;
         int rImgs_delete;
 
         MyAdapter (Context c, List<AgendaMedicoHorario> horariosAgenda, int imgs_confirm,int imgs_delete) {
             super(c, R.layout.medico_item_horario, R.id.tvFecha, horariosAgenda);
             this.context = c;
-            this.rImgs_confirm = imgs_confirm;
             this.rImgs_delete = imgs_delete;
             this.horarios = horariosAgenda;
         }
@@ -364,14 +362,13 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             TextView tvFecha = row.findViewById(R.id.tvFecha);
             TextView horario = row.findViewById(R.id.tvHorario);
 
-            ivConfirmar.setImageResource(rImgs_confirm);
             ivEliminar.setImageResource(rImgs_delete);
-            String fecha = StringHelper.convertirFechaAFormato_dd_mm_aaaa(horariosAgenda.get(position).getAgendaMedicoFecha().getFecha());
+            String fecha = StringHelper.convertirFechaAFormato_dd_mm_aaaa(horariosAgenda.get(position).getAgendaMedicoFecha().getFecha()) + " - " +
+                                                                                horariosAgenda.get(position).getAgendaMedicoFecha().getEspecialidad().getNombre();
             tvFecha.setText(fecha);
             horario.setText(horariosAgenda.get(position).getHoraDesde() + "-" + horariosAgenda.get(position).getHoraHasta());
 
 
-            //adding a click listener to the button to remove item from the list
             ivEliminar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -380,42 +377,8 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
                 }
             });
-            ivConfirmar.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    //modificarHorario(position);
-                }
-            });
 
             return row;
-        }
-
-         private void modificarhorario(final int position) {
-/*
-            AgendaPacienteService agendaPacienteService = RetrofitConnection.obtenerConexion
-                    (getString(R.string.apiTurnosURL)).create(AgendaPacienteService.class);
-
-            Call<Turno> call = agendaPacienteService.confirmarTurno(turnos.get(position).getId());
-            call.enqueue(new Callback<Turno>() {
-                @Override
-                public void onResponse(Call<Turno> call, Response<Turno> response) {
-                    if (!response.isSuccessful()) {
-                        Gson gson = new Gson();
-                        MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(Paciente_HomeActivity.this, "Se ha confirmado el turno", Toast.LENGTH_SHORT).show();
-                        finish();
-                        startActivity(getIntent());
-                    }
-                }
-
-                @Override
-                public void onFailure(Call<Turno> call, Throwable t) {
-                    Toast.makeText(Paciente_HomeActivity.this, "Error al actualizar el estado del turno", Toast.LENGTH_SHORT).show();
-                }
-            });
-            */
         }
     }
 }
