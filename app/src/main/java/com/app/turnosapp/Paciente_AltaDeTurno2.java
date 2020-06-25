@@ -70,6 +70,7 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
     private Especialidad especialidadSeleccionada; //Fecha seleccionada en pantalla anterior
     private List<Medico> listaMedicos;
     private Medico medicoSeleccionado;
+    private int posicionSeleccionada=-1;
 
     //Auxiliares
     private int check = 0; //Este check es para que no se ejecute la llamada que trae los turnosDisponibles 2 veces la primera vez(una cuando se setea el medico y otra cuando carga la pantalla)
@@ -315,7 +316,7 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
 
         AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
 
-        //Si hay muchas AgendaMedico en la lista como hago??????????????????????
+
         Call<List<AgendaMedicoTurno>> call = agendaMedicoFechaService.getTurnosDeTodosLosMedicos(fechaSeleccionada,horarioSeleccionado,especialidadSeleccionada.getId());
         call.enqueue(new Callback<List<AgendaMedicoTurno>>() {
             @Override
@@ -389,14 +390,16 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener(){
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                for (int i = 0; i < parent.getCount(); i++) {
-                    View v = parent.getChildAt(i);
-                    CheckBox checkBox = (CheckBox) v.findViewById(R.id.cbTurno);
-                    checkBox.setChecked(false);
-                }
-                CheckBox checkBox = (CheckBox) view.findViewById(R.id.cbTurno);
-                checkBox.setChecked(true);
+
                 turnoSeleccionado = (AgendaMedicoTurno) parent.getAdapter().getItem(position);
+                CheckBox checkBox = (CheckBox) view.findViewById(R.id.cbTurno);
+
+                if (checkBox.isChecked()) {
+                    posicionSeleccionada = -1;
+                } else {
+                    posicionSeleccionada = position;
+                }
+                adapter.notifyDataSetChanged();
             }
         });
     }
@@ -421,6 +424,12 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
             TextView fecha = row.findViewById(R.id.textView1);
             TextView especialidad = row.findViewById(R.id.textView2);
             TextView doctor = row.findViewById(R.id.textView3);
+            CheckBox checkBox = row.findViewById(R.id.cbTurno);
+
+            checkBox.setTag(position);
+            if (position == posicionSeleccionada) {
+                checkBox.setChecked(true);
+            } else checkBox.setChecked(false);
 
             String fechaFormateada = StringHelper.convertirFechaAFormato_dd_mm_aaaa(turnos.get(position).getAgendaMedicoHorario().getAgendaMedicoFecha().getFecha());
             fecha.setText(fechaFormateada + " " + turnos.get(position).getTurnoDesde());

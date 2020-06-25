@@ -28,6 +28,7 @@ import com.app.turnosapp.Interface.AgendaMedicoFechaService;
 import com.app.turnosapp.Interface.EspecialidadService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
+import com.app.turnosapp.Model.AgendaMedicoTurno;
 import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Medico;
@@ -67,6 +68,8 @@ public class AltaDeTurno extends AppCompatActivity {
 
     //Atributos que voy a usar
     private List<AgendaMedicoFecha> listaAgendaMedicoFecha;
+    private List<AgendaMedicoFecha> listaProximasAgendaMedicoFecha;
+    private List<AgendaMedicoTurno> listaProximosTurnos;
     private AgendaMedicoFecha agendaMedicoFechaSeleccionada;
     private List<Especialidad> listaEspecialidades;
     private List<Medico> listaMedicos;
@@ -142,8 +145,14 @@ public class AltaDeTurno extends AppCompatActivity {
                 //Si pasa de destildado a tildado tengo que actualizar el calendario
                 if(isChecked){
                     getTurnosCalendarioAllMedicos(especialidadSeleccionada.getId(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
+
                 }else{
                     getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
+                    if(listaAgendaMedicoFecha!=null){
+                        if(listaAgendaMedicoFecha.isEmpty()){ //Si no hay turnos en este mes
+                            getProximoTurnoDisponible(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado,checkAllMedicos);
+                        }
+                    }
                 }
             }
         });
@@ -242,7 +251,7 @@ public class AltaDeTurno extends AppCompatActivity {
                     calendarView.unMarkDate(date);
                     pintarCalendario();
                 } else {
-                    calendarView.getMarkedDates().getAll().clear();
+                    //calendarView.getMarkedDates().getAll().clear();
                     pintarCalendario();
                     if(listafechasConTurnosDisponibles.contains(fechaFormatoJapones)) {
                         calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
@@ -359,6 +368,118 @@ public class AltaDeTurno extends AppCompatActivity {
             }
         });
 
+    }
+
+    //Esta función devuelve el turno más proximo disponible.
+    private void getProximoTurnoDisponible(Long idEspecialidad, Long idMedico, int mes, int anio, String horario, Boolean checkAll){
+        int mesSiguiente;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
+
+        //Calculo el mes siguiente porque el actual ya se que no hay turnos
+
+        if(mes==12) {
+            mesSiguiente = 1;
+            anio++;
+        }
+        else{
+            mesSiguiente = mes+1;
+        }
+
+        if(checkAllMedicos) { //Si busca los turnos de TODOS los medicos
+
+        }
+        else{ // Si busca los tunos de un medico en particular
+            Call<List<AgendaMedicoFecha>> call = agendaMedicoFechaService.getAgendaMedicoFechasByEspecialidad_Medico_Periodo_Horario(idEspecialidad, idMedico, mesSiguiente, anio, horario);
+            call.enqueue(new Callback<List<AgendaMedicoFecha>>() {
+                @Override
+                public void onResponse(Call<List<AgendaMedicoFecha>> call, Response<List<AgendaMedicoFecha>> response) {
+                    if (!response.isSuccessful()) {
+                        Gson gson = new Gson();
+                        MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                        Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (!response.body().isEmpty()) {
+                            listaProximasAgendaMedicoFecha = response.body();
+                            if (listaProximasAgendaMedicoFecha != null) {
+                                if(!listaProximasAgendaMedicoFecha.isEmpty()) { //Si hay turnos el mes que viene
+                                    Collections.sort(listaProximasAgendaMedicoFecha, new Comparator<AgendaMedicoFecha>() {
+                                        @Override
+                                        public int compare(AgendaMedicoFecha o1, AgendaMedicoFecha o2) {
+                                            String t1 = o1.getFecha();
+                                            String t2 = o2.getFecha();
+                                            return t1.compareToIgnoreCase(t2);
+                                        }
+                                    });
+                                    //Me traigo los turnos de la AgendaMedicoFecha
+                                    getTurnosDeFechaAgendaMedico(listaProximasAgendaMedicoFecha.get(0).getId(),horarioSeleccionado);
+                                }
+                            }
+                        } else {
+                            Toast.makeText(AltaDeTurno.this, "No hay turnos disponibles en este mes ni en el próximo. LISTA DE ESPERA2", Toast.LENGTH_LONG).show();
+                            if (listaProximasAgendaMedicoFecha != null) {
+                                listaProximasAgendaMedicoFecha.clear();
+                            }
+                        }
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<List<AgendaMedicoFecha>> call, Throwable t) {
+                    Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    //Esta funcion trae los turnos de una AgendaMedicoFecha y carga la lista de proximosTurnos
+    private void getTurnosDeFechaAgendaMedico(long idAgendaMedicoFecha, String horarioSeleccionado) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
+
+        Call<List<AgendaMedicoTurno>> call = agendaMedicoFechaService.getTurnosDeUnaFechaYHorarioEspecifico(idAgendaMedicoFecha,horarioSeleccionado);
+        call.enqueue(new Callback<List<AgendaMedicoTurno>>() {
+            @Override
+            public void onResponse(Call<List<AgendaMedicoTurno>> call, Response<List<AgendaMedicoTurno>> response) {
+                if(!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                else{
+                   listaProximosTurnos=response.body();
+                    if (listaProximosTurnos != null) {
+                        if(!listaProximosTurnos.isEmpty()) { //Si hay turnos en la agenda
+                            Collections.sort(listaProximosTurnos, new Comparator<AgendaMedicoTurno>() {
+                                @Override
+                                public int compare(AgendaMedicoTurno o1, AgendaMedicoTurno o2) {
+                                    String t1 = o1.getTurnoDesde();
+                                    String t2 = o2.getTurnoDesde();
+                                    return t1.compareToIgnoreCase(t2);
+                                }
+                            });
+
+                            String fechaFormateada = StringHelper.convertirFechaAFormato_dd_mm_aaaa(listaProximasAgendaMedicoFecha.get(0).getFecha());
+                            Toast.makeText(AltaDeTurno.this, "El próximo turno disponible es: "+fechaFormateada + " "+listaProximosTurnos.get(0).getTurnoDesde(), Toast.LENGTH_SHORT).show();
+                            listaProximasAgendaMedicoFecha.clear();
+                            listaProximosTurnos.clear();
+                        }
+                    }
+                }
+            }
+            @Override
+            public void onFailure(Call<List<AgendaMedicoTurno>> call, Throwable t) {
+                Toast.makeText(AltaDeTurno.this, "ERROR: Falló la conexión al servicio", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     private void pintarCalendario() {
