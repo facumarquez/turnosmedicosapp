@@ -25,13 +25,18 @@ import android.widget.Toast;
 
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.AgendaMedicoFechaService;
+import com.app.turnosapp.Interface.AgendaPacienteService;
 import com.app.turnosapp.Interface.EspecialidadService;
+import com.app.turnosapp.Interface.PacienteService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
 import com.app.turnosapp.Model.AgendaMedicoTurno;
+import com.app.turnosapp.Model.AgendaPaciente;
+import com.app.turnosapp.Model.ColaEsperaPaciente;
 import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Medico;
+import com.app.turnosapp.Model.Paciente;
 import com.app.turnosapp.Model.Usuario;
 import com.google.gson.Gson;
 
@@ -65,6 +70,7 @@ public class AltaDeTurno extends AppCompatActivity {
     private Spinner horarios;
     private Button btSiguiente;
     private CheckBox cbAllMedicos;
+    private Button btListaDeEspera;
 
     //Atributos que voy a usar
     private List<AgendaMedicoFecha> listaAgendaMedicoFecha;
@@ -74,6 +80,7 @@ public class AltaDeTurno extends AppCompatActivity {
     private List<Especialidad> listaEspecialidades;
     private List<Medico> listaMedicos;
     private Usuario usuario;
+    private Paciente paciente;
 
     //Datos seleccionados en la pantalla
     private Especialidad especialidadSeleccionada;
@@ -101,6 +108,9 @@ public class AltaDeTurno extends AppCompatActivity {
             usuario = (Usuario) extras.getSerializable("usuario");
         }
 
+        //Me traigo el Paciente porque despues lo voy a necesitar para ponerlo en la cola de espera
+        getPaciente(usuario.getIdUsuario());
+
         // Inicializo los controles
         cbAllMedicos = (CheckBox) findViewById(R.id.cbAllMedicos);
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
@@ -110,6 +120,8 @@ public class AltaDeTurno extends AppCompatActivity {
         btSiguiente = (Button) findViewById(R.id.btConfirmar);
         listafechasConTurnosDisponibles = new ArrayList<String>();
         checkAllMedicos = cbAllMedicos.isChecked();
+        btListaDeEspera = (Button)findViewById(R.id.btListaDeEspera);
+        btListaDeEspera.setEnabled(false);
 
 
         //Limpio el calendario por si ya había navegado la pantalla
@@ -136,8 +148,10 @@ public class AltaDeTurno extends AppCompatActivity {
         cbAllMedicos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
+                btListaDeEspera.setEnabled(false);
                 spMedicos.setEnabled(isChecked ? false : true);
                 checkAllMedicos = isChecked;
+
 
                 //Esto es para que cuando tilde "Todos" lo obligue a seleccionar el dia de nuevo (ya que se limpia el calendario pero queda la variable cargada)
                 diaSeleccionado=0;
@@ -145,17 +159,20 @@ public class AltaDeTurno extends AppCompatActivity {
                 //Si pasa de destildado a tildado tengo que actualizar el calendario
                 if(isChecked){
                     getTurnosCalendarioAllMedicos(especialidadSeleccionada.getId(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
-
                 }else{
                     getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
-                    if(listaAgendaMedicoFecha!=null){
-                        if(listaAgendaMedicoFecha.isEmpty()){ //Si no hay turnos en este mes
-                            getProximoTurnoDisponible(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado,checkAllMedicos);
-                        }
-                    }
                 }
             }
         });
+
+        btListaDeEspera.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                agregarAListaDeEspera();
+                btListaDeEspera.setEnabled(false);
+            }
+        });
+
 
 
         btSiguiente.setOnClickListener(new View.OnClickListener(){
@@ -188,6 +205,7 @@ public class AltaDeTurno extends AppCompatActivity {
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                btListaDeEspera.setEnabled(false);
                 especialidadSeleccionada = (Especialidad) parent.getItemAtPosition(position);
                 getMedicosPorEspecialidad(especialidadSeleccionada.getId());
             }
@@ -201,6 +219,7 @@ public class AltaDeTurno extends AppCompatActivity {
         horarios.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int i, long l) {
+                btListaDeEspera.setEnabled(false);
                 if(parent.getItemAtPosition(i).toString().equals("Tarde")){
                     horarioSeleccionado = "T";
                 }
@@ -222,6 +241,7 @@ public class AltaDeTurno extends AppCompatActivity {
         calendarView.setOnMonthChangeListener(new OnMonthChangeListener() {
             @Override
             public void onMonthChange(int year, int month) {
+                btListaDeEspera.setEnabled(false);
                 mesSeleccionado = month;
                 anioSeleccionado = year;
                 Toast.makeText(AltaDeTurno.this, mesSeleccionado + " "+ anioSeleccionado, Toast.LENGTH_SHORT).show();
@@ -251,7 +271,6 @@ public class AltaDeTurno extends AppCompatActivity {
                     calendarView.unMarkDate(date);
                     pintarCalendario();
                 } else {
-                    //calendarView.getMarkedDates().getAll().clear();
                     pintarCalendario();
                     if(listafechasConTurnosDisponibles.contains(fechaFormatoJapones)) {
                         calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
@@ -265,6 +284,7 @@ public class AltaDeTurno extends AppCompatActivity {
         spMedicos.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                btListaDeEspera.setEnabled(false);
                 medicoSeleccionado = (Medico) parent.getItemAtPosition(position);
                 getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
             }
@@ -272,6 +292,71 @@ public class AltaDeTurno extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 //TODO: ver si poner algo aca....
+            }
+        });
+    }
+
+    private void agregarAListaDeEspera() {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        AgendaPacienteService agendaPacienteService = retrofit.create(AgendaPacienteService.class);
+
+        //Armo el objeto para agregarlo a la cola de espera
+        ColaEsperaPaciente colaDeEspera = new ColaEsperaPaciente();
+        colaDeEspera.setPaciente(paciente);
+        colaDeEspera.setEspecialidad(especialidadSeleccionada);
+        String fechaFormateada=String.format("%d%02d", anioSeleccionado,mesSeleccionado); // Formato 202006
+        colaDeEspera.setFecha(fechaFormateada);
+
+        Call<AgendaPaciente> call = agendaPacienteService.agregarAColaDeEspera(colaDeEspera);
+        call.enqueue(new Callback<AgendaPaciente>() {
+            @Override
+            public void onResponse(Call<AgendaPaciente> call, Response<AgendaPaciente> response) {
+
+                if (!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                } else {
+                    Toast.makeText(AltaDeTurno.this, "Se agregó a la cola de espera", Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<AgendaPaciente> call, Throwable t) {
+                Toast.makeText(AltaDeTurno.this, "ERROR: No se pudo agregar a la cola de espera", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void getPaciente(long idUsuario) {
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        PacienteService pacienteService = retrofit.create(PacienteService.class);
+        Call<Paciente> call = pacienteService.getPaciente(idUsuario);
+        call.enqueue(new Callback<Paciente>() {
+            @Override
+            public void onResponse(Call<Paciente> call, Response<Paciente> response) {
+                if(!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                }
+                else{
+                    //Cargo los turnos en el listado para que el paciente pueda seleccionar el que desea.
+                    paciente=response.body();
+                }
+            }
+            @Override
+            public void onFailure(Call<Paciente> call, Throwable t) {
+                Toast.makeText(AltaDeTurno.this, "ERROR: Falló la conexión al servicio", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -313,7 +398,6 @@ public class AltaDeTurno extends AppCompatActivity {
                             listaAgendaMedicoFecha.clear();
                         }
                     }
-
                     //Cargo el array con los dias que hay turnos disponibles
                     getDiasConTurnosDisponibles();
                     pintarCalendario();
@@ -381,7 +465,6 @@ public class AltaDeTurno extends AppCompatActivity {
         AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
 
         //Calculo el mes siguiente porque el actual ya se que no hay turnos
-
         if(mes==12) {
             mesSiguiente = 1;
             anio++;
@@ -390,10 +473,7 @@ public class AltaDeTurno extends AppCompatActivity {
             mesSiguiente = mes+1;
         }
 
-        if(checkAllMedicos) { //Si busca los turnos de TODOS los medicos
-
-        }
-        else{ // Si busca los tunos de un medico en particular
+       // Si busca los tunos de un medico en particular
             Call<List<AgendaMedicoFecha>> call = agendaMedicoFechaService.getAgendaMedicoFechasByEspecialidad_Medico_Periodo_Horario(idEspecialidad, idMedico, mesSiguiente, anio, horario);
             call.enqueue(new Callback<List<AgendaMedicoFecha>>() {
                 @Override
@@ -420,20 +500,19 @@ public class AltaDeTurno extends AppCompatActivity {
                                 }
                             }
                         } else {
-                            Toast.makeText(AltaDeTurno.this, "No hay turnos disponibles en este mes ni en el próximo. LISTA DE ESPERA2", Toast.LENGTH_LONG).show();
+                            Toast.makeText(AltaDeTurno.this, "No hay turnos este mes ni el siguiente. Puede agregarse a la lista de espera", Toast.LENGTH_LONG).show();
+                            btListaDeEspera.setEnabled(true);
                             if (listaProximasAgendaMedicoFecha != null) {
                                 listaProximasAgendaMedicoFecha.clear();
                             }
                         }
                     }
                 }
-
                 @Override
                 public void onFailure(Call<List<AgendaMedicoFecha>> call, Throwable t) {
                     Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
                 }
             });
-        }
     }
 
     //Esta funcion trae los turnos de una AgendaMedicoFecha y carga la lista de proximosTurnos
@@ -482,6 +561,69 @@ public class AltaDeTurno extends AppCompatActivity {
         });
     }
 
+    //Esta función va a devolver los proximos turnos cuando el usuario selecciona el check TODOS los medicos y no hay turnos en el mes seleccionado
+    private void getProximosTurnosAllMedicos(Long idEspecialidad, int mes, int anio, String horario){
+        int mesSiguiente;
+        Retrofit retrofit = new Retrofit.Builder()
+                .baseUrl(getString(R.string.apiTurnosURL))
+                .addConverterFactory(GsonConverterFactory.create())
+                .build();
+
+        //Calculo el mes siguiente porque el actual ya se que no hay turnos
+        if(mes==12) {
+            mesSiguiente = 1;
+            anio++;
+        }
+        else{
+            mesSiguiente = mes+1;
+        }
+
+        AgendaMedicoFechaService agendaMedicoFechaService = retrofit.create(AgendaMedicoFechaService.class);
+
+        Call<List<AgendaMedicoFecha>> call = agendaMedicoFechaService.getAgendaMedicoFechasByEspecialidad_Periodo_Horario(idEspecialidad,mesSiguiente, anio, horario);
+        call.enqueue(new Callback<List<AgendaMedicoFecha>>() {
+            @Override
+            public void onResponse(Call<List<AgendaMedicoFecha>> call, Response<List<AgendaMedicoFecha>> response) {
+
+                if (!response.isSuccessful()) {
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AltaDeTurno.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                } else {
+                    if (!response.body().isEmpty()) {
+                        listaProximasAgendaMedicoFecha = response.body();
+                        if(!listaProximasAgendaMedicoFecha.isEmpty()) { //Si hay turnos el mes que viene
+                            Collections.sort(listaProximasAgendaMedicoFecha, new Comparator<AgendaMedicoFecha>() {
+                                @Override
+                                public int compare(AgendaMedicoFecha o1, AgendaMedicoFecha o2) {
+                                    String t1 = o1.getFecha();
+                                    String t2 = o2.getFecha();
+                                    return t1.compareToIgnoreCase(t2);
+                                }
+                            });
+                            //Me traigo los turnos de la AgendaMedicoFecha
+                            getTurnosDeFechaAgendaMedico(listaProximasAgendaMedicoFecha.get(0).getId(),horarioSeleccionado);
+                        }
+                    } else {
+                        Toast.makeText(AltaDeTurno.this, "No hay turnos este mes ni el siguiente. Puede agregarse a la lista de espera", Toast.LENGTH_LONG).show();
+                        btListaDeEspera.setEnabled(true);
+                        if (listaAgendaMedicoFecha != null) {
+                            listaAgendaMedicoFecha.clear();
+                        }
+                    }
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<AgendaMedicoFecha>> call, Throwable t) {
+                Toast.makeText(AltaDeTurno.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+
+
     private void pintarCalendario() {
         calendarView.getMarkedDates().getAll().clear();
         if(listafechasConTurnosDisponibles!=null) {
@@ -512,6 +654,15 @@ public class AltaDeTurno extends AppCompatActivity {
             // delete duplicates (if any) from 'listafechasConTurnosDisponibles'
             if (!listafechasConTurnosDisponibles.isEmpty()) {
                 listafechasConTurnosDisponibles = new ArrayList<String>(new LinkedHashSet<String>(listafechasConTurnosDisponibles));
+            }
+            else{
+                //Esto es para que cuando no hay turnos le avise el proximo o sino le sugiera agregarse a la lista de espera.
+                if(checkAllMedicos){
+                    getProximoTurnoDisponible(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado,checkAllMedicos);
+                }
+                else{
+                    getProximosTurnosAllMedicos(especialidadSeleccionada.getId(), mesSeleccionado, anioSeleccionado, horarioSeleccionado);
+                }
             }
         }
     }
