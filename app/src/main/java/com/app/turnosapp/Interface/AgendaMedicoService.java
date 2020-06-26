@@ -5,6 +5,7 @@ import com.app.turnosapp.Model.AgendaMedicoFecha;
 
 import retrofit2.Call;
 import retrofit2.http.Body;
+import retrofit2.http.DELETE;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
@@ -18,11 +19,14 @@ public interface AgendaMedicoService {
     @POST("AgendaMedicos")
     Call<AgendaMedico> crearAgendaMedico(@Body AgendaMedico agenda);
 
-    @POST("AgendaMedicos/{idAgendaMedico}/ConfirmarAgenda")
-    Call<Boolean> confirmarAgenda(@Path("idAgendaMedico") long idAgendaMedico);
+    @POST("AgendaMedicos/{idAgendaMedico}/GenerarTurnos")
+    Call<Boolean>generarTurnos(@Path("idAgendaMedico") long idAgendaMedico);
 
     @GET("AgendaMedicos/{idAgendaMedico}/{fecha}")
     Call<AgendaMedicoFecha> obtenerFechaEspecificaDeAgenda(@Path("idAgendaMedico") long idAgendaMedico,
                                                            @Path("fecha") String fecha);
+
+    @DELETE("AgendaMedicos/{idAgendaMedico}/EliminarFechasHuerfanas")
+    Call<Void> eliminarFechasHuerfanas(@Path("idAgendaMedico") Long idAgendaMedico);
 
 }

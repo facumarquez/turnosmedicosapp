@@ -136,9 +136,7 @@ public class AgendaMedicoTurnoActivity extends AppCompatActivity {
         builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 eliminarTurno(position);
-
             }
         });
 
@@ -164,7 +162,7 @@ public class AgendaMedicoTurnoActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     Gson gson = new Gson();
                     MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                    Toast.makeText(AgendaMedicoTurnoActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoTurnoActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Operación confirmada!", Toast.LENGTH_SHORT).show();
                     finish();
@@ -189,7 +187,7 @@ public class AgendaMedicoTurnoActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<AgendaMedicoTurno>> call, Response<List<AgendaMedicoTurno>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudieron obtener los turnos", Toast.LENGTH_SHORT).show();
+                   Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudieron obtener los turnos", Toast.LENGTH_SHORT).show();
                 } else {
                     callback.getTurnosAgendaMedico(response.body());
                 }
@@ -212,20 +210,23 @@ public class AgendaMedicoTurnoActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<AgendaMedicoFecha> call, Response<AgendaMedicoFecha> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudo obtener la fecha", Toast.LENGTH_SHORT).show();
+                  Toast.makeText(AgendaMedicoTurnoActivity.this, "No se pudo obtener la fecha", Toast.LENGTH_SHORT).show();
                 } else {
                     fechaSeleccionada = response.body();
-
-                    obtenerTurnosDeFechaSeleccionada(fechaSeleccionada, new IAgendaMedicoTurnoCallback() {
-                        @Override
-                        public void getTurnosAgendaMedico(List<AgendaMedicoTurno> turnos) {
-                            turnosAgenda = turnos;
-                            if (turnos == null || turnos.size() == 0){
-                                Toast.makeText(AgendaMedicoTurnoActivity.this, "No hay turnos para la fecha especificada", Toast.LENGTH_SHORT).show();
+                    if (fechaSeleccionada != null){
+                        obtenerTurnosDeFechaSeleccionada(fechaSeleccionada, new IAgendaMedicoTurnoCallback() {
+                            @Override
+                            public void getTurnosAgendaMedico(List<AgendaMedicoTurno> turnos) {
+                                turnosAgenda = turnos;
+                                if (turnos == null || turnos.size() == 0){
+                                    Toast.makeText(AgendaMedicoTurnoActivity.this, "No hay turnos para la fecha especificada", Toast.LENGTH_SHORT).show();
+                                }
+                                setearAdapter(turnos);
                             }
-                            setearAdapter(turnos);
-                        }
-                    });
+                        });
+                    }else{
+                        Toast.makeText(AgendaMedicoTurnoActivity.this, "No hay turnos para la fecha especificada", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
 

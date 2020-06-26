@@ -138,17 +138,13 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         //Botones
         volverAtras.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
-                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
-                //TODO: ver si poner tambien la lista de fechas obtenidas de la pantalla anterior....
-                finish();
-                startActivity(intent);
+                eliminarFechasHuerfanas(agendaMedico.getId());
             }
         });
 
         btGenerarTurnos.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                dialogConfirmarAgenda();
+                dialogGenerarTurnos();
             }
         });
 
@@ -171,8 +167,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                     crearHorariosAgenda(horariosAgenda, new IAgendaMedicoHorarioCallback() {
                         @Override
                         public void getHorariosAgendaMedico(List<AgendaMedicoHorario> horarios) {
-                            //horariosAgenda = horarios;
-                            //adapter.notifyDataSetChanged();
                             finish();
                             startActivity(getIntent());
                         }
@@ -192,9 +186,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
                 eliminarHorario(position);
-
             }
         });
 
@@ -204,11 +196,10 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
             }
         });
-
         builder.show();
     }
 
-    private void dialogConfirmarAgenda(){
+    private void dialogGenerarTurnos(){
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Aviso!");
@@ -217,9 +208,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-
-                confirmarAgenda(agendaMedico.getId());
-
+                generarTurnos(agendaMedico.getId());
             }
         });
 
@@ -229,21 +218,22 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
             }
         });
-
         builder.show();
     }
 
-    private void confirmarAgenda(long idAgendaMedico) {
+    private void generarTurnos(long idAgendaMedico) {
 
         AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
                 (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
 
-        Call<Boolean> call = agendaMedicoService.confirmarAgenda(idAgendaMedico);
+        Call<Boolean> call = agendaMedicoService.generarTurnos(idAgendaMedico);
         call.enqueue(new Callback <Boolean>() {
             @Override
             public void onResponse(Call<Boolean> call, Response<Boolean> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoHorarioActivity.this, "No se han generado los turnos", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
                     intent.putExtra("agendaMedico", (Serializable) agendaMedico);
@@ -261,7 +251,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
     }
 
     private void setearAdapter(List<AgendaMedicoHorario> horarios){
-
         adapter = new MyAdapter( this, horarios, R.drawable.confirm,R.drawable.bin);
         lvHorarios.setAdapter(adapter);
     }
@@ -276,7 +265,9 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             @Override
             public void onResponse(Call<List<AgendaMedicoHorario>> call, Response<List<AgendaMedicoHorario>> response) {
                 if (!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoHorarioActivity.this, "No se creó el horario", Toast.LENGTH_SHORT).show();
+                    Gson gson = new Gson();
+                    MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     callback.getHorariosAgendaMedico(response.body());
                 }
@@ -324,11 +315,38 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     Gson gson = new Gson();
                     MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                    Toast.makeText(AgendaMedicoHorarioActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Operación confirmada!", Toast.LENGTH_SHORT).show();
                     finish();
                     startActivity(getIntent());
+                }
+            }
+
+            @Override
+            public void onFailure(Call<Void> call, Throwable t) {
+                Toast.makeText(AgendaMedicoHorarioActivity.this, "No se ha podido eliminar el horario", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void eliminarFechasHuerfanas(long idAgendaMedico) {
+
+        AgendaMedicoService agendaMedicoService = RetrofitConnection.obtenerConexion
+                (getString(R.string.apiTurnosURL)).create(AgendaMedicoService.class);
+
+        Call<Void> call = agendaMedicoService.eliminarFechasHuerfanas(idAgendaMedico);
+        call.enqueue(new Callback<Void>() {
+            @Override
+            public void onResponse(Call<Void> call, Response<Void> response) {
+                if (!response.isSuccessful()) {
+                    Toast.makeText(AgendaMedicoHorarioActivity.this, "Error inesperado", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
+                    intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                    //TODO: ver si poner tambien la lista de fechas obtenidas de la pantalla anterior....
+                    finish();
+                    startActivity(intent);
                 }
             }
 
@@ -377,7 +395,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
                 }
             });
-
             return row;
         }
     }

@@ -61,4 +61,10 @@ public interface AgendaMedicoFechaService {
 
     @GET("AgendaMedicoFechas/{idAgendaMedicoFecha}/Turnos")
     Call<List<AgendaMedicoTurno>> obtenerTurnosDeFecha(@Path("idAgendaMedicoFecha") long idAgendaMedicoFecha);
-}
+
+
+    @GET("AgendaMedicoFechas/{fecha}/AgendaMedicos/{idAgendaMedico}/PuedeModificarAgenda")
+    Call <Boolean> puedeModificarLaAgenda(@Path("fecha") String fecha,
+                                                          @Path("idAgendaMedico") long idAgendaMedico);
+
+    }

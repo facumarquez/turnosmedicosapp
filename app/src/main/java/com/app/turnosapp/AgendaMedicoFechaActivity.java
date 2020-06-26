@@ -282,7 +282,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             public void onResponse(Call<List<Especialidad>> call, Response<List<Especialidad>> response) {
 
                 if(!response.isSuccessful()) {
-                    Toast.makeText(AgendaMedicoFechaActivity.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoFechaActivity.this, "No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
                 }
                 else{
                     listaEspecialidades = response.body();
@@ -303,7 +303,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             }
             @Override
             public void onFailure(Call<List<Especialidad>> call, Throwable t) {
-                Toast.makeText(AgendaMedicoFechaActivity.this, "ERROR: No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
+                Toast.makeText(AgendaMedicoFechaActivity.this, "No se pudieron obtener las especialidades", Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -320,7 +320,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     Gson gson = new Gson();
                     MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                    Toast.makeText(AgendaMedicoFechaActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoFechaActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                     startActivity(getIntent());
                 } else {
                     callback.getFechasAgendaMedico(response.body());
@@ -369,9 +369,10 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     Gson gson = new Gson();
                     MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                    Toast.makeText(AgendaMedicoFechaActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoFechaActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     Toast.makeText(getApplicationContext(), "Operación confirmada!", Toast.LENGTH_SHORT).show();
+                    finish();
                     startActivity(getIntent());
                 }
             }
