@@ -63,4 +63,10 @@ public class StringHelper {
         }
     }
 
+    public static boolean mesCorrecto(String fecha, int mesAgenda) {
+
+        int mesDeFecha = Integer.valueOf(fecha.substring(4,6));
+
+        return mesDeFecha == mesAgenda;
+    }
 }

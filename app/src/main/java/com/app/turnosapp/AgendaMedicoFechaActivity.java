@@ -122,22 +122,26 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
 
                 diaSeleccionado = fechaFormatoJapones;
 
-                if(listaFechasSeleccionadas.contains(fechaFormatoJapones)){
-                    Marcado=true;
-                }
-
-                if (Marcado) {
-                    listaFechasSeleccionadas.remove(fechaFormatoJapones);
-                    marcarFechasOcupadasEnCalendario();
-                    marcarFechasSeleccionadasEnCalendario();
-                } else {
-                    listaFechasSeleccionadas.add(fechaFormatoJapones);
-                    marcarFechasOcupadasEnCalendario();
-                    marcarFechasSeleccionadasEnCalendario();
-                    if(listaFechasOcupadas.contains(fechaFormatoJapones)) {
-                        calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
+                if (!StringHelper.mesCorrecto(diaSeleccionado, agendaMedico.getMes())){
+                    Toast.makeText(getApplicationContext(), "Debe seleccionar un día dentro del mes de la agenda", Toast.LENGTH_LONG).show();
+                }else{
+                    if(listaFechasSeleccionadas.contains(fechaFormatoJapones)){
+                        Marcado=true;
                     }
-                    calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.BLUE)));
+
+                    if (Marcado) {
+                        listaFechasSeleccionadas.remove(fechaFormatoJapones);
+                        marcarFechasOcupadasEnCalendario();
+                        marcarFechasSeleccionadasEnCalendario();
+                    } else {
+                        listaFechasSeleccionadas.add(fechaFormatoJapones);
+                        marcarFechasOcupadasEnCalendario();
+                        marcarFechasSeleccionadasEnCalendario();
+                        if(listaFechasOcupadas.contains(fechaFormatoJapones)) {
+                            calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.RED)));
+                        }
+                        calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.BLUE)));
+                    }
                 }
             }
         });
