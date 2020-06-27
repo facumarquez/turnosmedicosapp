@@ -254,7 +254,19 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                             fechasConHorariosABorrar.add(fecha);
                         }
                     }
-                    eliminarHorariosAgenda(fechasConHorariosABorrar);
+                    boolean puedeModificarAgenda = true;
+                    for (AgendaMedicoFecha fecha:fechasConHorariosABorrar) {
+                        if (!StringHelper.puedeModificarFechaAgenda(fecha.getAgendaMedico(),fecha.getFecha())){
+                            puedeModificarAgenda = false;
+                            break;
+                        }
+                    }
+
+                    if (puedeModificarAgenda){
+                        eliminarHorariosAgenda(fechasConHorariosABorrar);
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Sólo puede modificar la agenda 7 días después en el transcurso del mes", Toast.LENGTH_LONG).show();
+                    }
                }else{
                     Toast.makeText(getApplicationContext(), "La/s fechas seleccionadas no están cargadas en el sistema!. Operación cancelada", Toast.LENGTH_SHORT).show();
                }

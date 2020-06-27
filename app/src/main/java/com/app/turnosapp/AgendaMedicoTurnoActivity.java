@@ -28,6 +28,7 @@ import com.app.turnosapp.Interface.AgendaMedicoService;
 import com.app.turnosapp.Interface.AgendaMedicoTurnoService;
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoFecha;
+import com.app.turnosapp.Model.AgendaMedicoHorario;
 import com.app.turnosapp.Model.AgendaMedicoTurno;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.google.gson.Gson;
@@ -113,7 +114,14 @@ public class AgendaMedicoTurnoActivity extends AppCompatActivity {
             ivEliminar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    dialogEliminarTurno(position);
+
+                    AgendaMedicoTurno turno = turnosAgenda.get(position);
+
+                    if (StringHelper.puedeModificarFechaAgenda(agendaMedico,turno.getAgendaMedicoHorario().getAgendaMedicoFecha().getFecha())){
+                        dialogEliminarTurno(position);
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Sólo puede modificar la agenda 7 días después en el transcurso del mes", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
 

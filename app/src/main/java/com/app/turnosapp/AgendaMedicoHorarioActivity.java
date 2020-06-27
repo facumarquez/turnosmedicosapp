@@ -79,6 +79,7 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
         fechasAgendaSeleccionadas = (List<AgendaMedicoFecha>)intentAgendaMedicoFecha.getSerializableExtra(("fechasAgenda"));
         agendaMedico = (AgendaMedico)intentAgendaMedicoFecha.getSerializableExtra(("agendaMedico"));
 
+
         for (AgendaMedicoFecha fecha: fechasAgendaSeleccionadas) {
             tvdias.setText(tvdias.getText() + " - " + fecha.getFecha().substring(6,8));
         }
@@ -157,22 +158,34 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                 }else if (etHasta.getText().toString().equals("")){
                     Toast.makeText(getApplicationContext(), "Debe ingresar el horario hasta!", Toast.LENGTH_SHORT).show();
                 }else{
-                    for (AgendaMedicoFecha fecha:fechasAgendaSeleccionadas) {
 
-                        AgendaMedicoHorario horarioNuevo = new AgendaMedicoHorario(etDesde.getText().toString(),etHasta.getText().toString());
-                        horarioNuevo.setAgendaMedicoFecha(fecha);
-                        horariosAgenda.add(horarioNuevo);
+                    boolean puedeModificarAgenda = true;
+                    for (AgendaMedicoFecha fecha:fechasAgendaSeleccionadas) {
+                        if (!StringHelper.puedeModificarFechaAgenda(fecha.getAgendaMedico(),fecha.getFecha())){
+                            puedeModificarAgenda = false;
+                            break;
+                        }
                     }
 
-                    crearHorariosAgenda(horariosAgenda, new IAgendaMedicoHorarioCallback() {
-                        @Override
-                        public void getHorariosAgendaMedico(List<AgendaMedicoHorario> horarios) {
-                            finish();
-                            startActivity(getIntent());
-                        }
-                    });
-                }
+                    if (puedeModificarAgenda){
+                        for (AgendaMedicoFecha fecha:fechasAgendaSeleccionadas) {
 
+                            AgendaMedicoHorario horarioNuevo = new AgendaMedicoHorario(etDesde.getText().toString(),etHasta.getText().toString());
+                            horarioNuevo.setAgendaMedicoFecha(fecha);
+                            horariosAgenda.add(horarioNuevo);
+                        }
+
+                        crearHorariosAgenda(horariosAgenda, new IAgendaMedicoHorarioCallback() {
+                            @Override
+                            public void getHorariosAgendaMedico(List<AgendaMedicoHorario> horarios) {
+                                finish();
+                                startActivity(getIntent());
+                            }
+                        });
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Sólo puede modificar la agenda 7 días después en el transcurso del mes", Toast.LENGTH_LONG).show();
+                    }
+                }
             }
         });
     }
@@ -390,9 +403,13 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
             ivEliminar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
+                    AgendaMedicoHorario horario = horariosAgenda.get(position);
 
-                    dialogEliminarHorario(position);
-
+                    if (StringHelper.puedeModificarFechaAgenda(agendaMedico,horario.getAgendaMedicoFecha().getFecha())){
+                        dialogEliminarHorario(position);
+                    }else{
+                        Toast.makeText(getApplicationContext(), "Sólo puede modificar la agenda 7 días después en el transcurso del mes", Toast.LENGTH_LONG).show();
+                    }
                 }
             });
             return row;
