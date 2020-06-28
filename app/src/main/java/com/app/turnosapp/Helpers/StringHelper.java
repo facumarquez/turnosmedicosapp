@@ -1,6 +1,7 @@
 package com.app.turnosapp.Helpers;
 
 import com.app.turnosapp.Model.AgendaMedico;
+import com.app.turnosapp.Model.AgendaMedicoHorario;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.List;
 
 public class StringHelper {
 
@@ -69,4 +71,24 @@ public class StringHelper {
 
         return mesDeFecha == mesAgenda;
     }
+
+    public static boolean rangoSuperpuesto(String desde, String hasta, List<AgendaMedicoHorario> horarios) {
+
+        boolean rangoSuperpuesto = false;
+        if (horarios == null || horarios.size() == 0){
+            return false;
+        }
+        for (AgendaMedicoHorario horario:horarios) {
+            String horaDesde = horario.getHoraDesde();
+            String horaHasta = horario.getHoraHasta();
+
+            if ((hasta.compareTo(horaDesde) > 0) && !desde.equals(horaHasta)){
+                rangoSuperpuesto = true;
+                break;
+            }
+        }
+
+        return rangoSuperpuesto;
+    }
+
 }

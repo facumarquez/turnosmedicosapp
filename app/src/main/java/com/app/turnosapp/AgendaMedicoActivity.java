@@ -23,7 +23,6 @@ import com.app.turnosapp.Model.Usuario;
 import com.google.gson.Gson;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -105,7 +104,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
                                 intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                                 startActivity(intent);
                             }else{
-                                Toast.makeText(AgendaMedicoActivity.this,"La agenda seleccionada es menor al período actual", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(AgendaMedicoActivity.this,"La agenda seleccionada es menor al período actual", Toast.LENGTH_LONG).show();
                             }
                         }
                     }
@@ -202,7 +201,7 @@ public class AgendaMedicoActivity extends AppCompatActivity {
                 if (!response.isSuccessful()) {
                     Gson gson = new Gson();
                     MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                    Toast.makeText(AgendaMedicoActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(AgendaMedicoActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                 } else {
                     callback.getAgendaMedico(response.body());
                 }

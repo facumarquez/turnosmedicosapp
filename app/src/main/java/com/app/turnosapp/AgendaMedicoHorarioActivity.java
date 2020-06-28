@@ -159,6 +159,8 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "Debe ingresar el horario hasta!", Toast.LENGTH_SHORT).show();
                 }else if (etDesde.getText().toString().compareTo(etHasta.getText().toString()) > 0){
                         Toast.makeText(getApplicationContext(), "El horario desde no puede ser superior al horario hasta!", Toast.LENGTH_LONG).show();
+                }else if (StringHelper.rangoSuperpuesto(etDesde.getText().toString(),etHasta.getText().toString(),horariosAgenda)){
+                    Toast.makeText(getApplicationContext(), "El rango a ingresar se suporpone con uno ya existente!", Toast.LENGTH_LONG).show();
                 }else{
 
                     boolean puedeModificarAgenda = true;
