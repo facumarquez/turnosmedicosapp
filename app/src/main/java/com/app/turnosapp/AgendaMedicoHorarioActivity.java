@@ -155,8 +155,10 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                 //TODO: validar que entre desde y hasta haya intervalo de 15 min...
                 if (etDesde.getText().toString().equals("")){
                     Toast.makeText(getApplicationContext(), "Debe ingresar el horario desde!", Toast.LENGTH_SHORT).show();
-                }else if (etHasta.getText().toString().equals("")){
+                }else if (etHasta.getText().toString().equals("")) {
                     Toast.makeText(getApplicationContext(), "Debe ingresar el horario hasta!", Toast.LENGTH_SHORT).show();
+                }else if (etDesde.getText().toString().compareTo(etHasta.getText().toString()) > 0){
+                        Toast.makeText(getApplicationContext(), "El horario desde no puede ser superior al horario hasta!", Toast.LENGTH_LONG).show();
                 }else{
 
                     boolean puedeModificarAgenda = true;
