@@ -358,7 +358,6 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
                     Intent intent = new Intent(AgendaMedicoHorarioActivity.this, AgendaMedicoFechaActivity.class);
                     intent.putExtra("agendaMedico", (Serializable) agendaMedico);
                     //TODO: ver si poner tambien la lista de fechas obtenidas de la pantalla anterior....
-                    finish();
                     startActivity(intent);
                 }
             }

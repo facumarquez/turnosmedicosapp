@@ -48,6 +48,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
     private Button btHorarios;
     private Button btEliminarHorarios;
     private Button btTurnos;
+    private Button btMain;
 
     private String diaSeleccionado;
     private AgendaMedico agendaMedico;
@@ -96,6 +97,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         btHorarios = (Button)findViewById(R.id.btnHorarios);
         btEliminarHorarios = (Button)findViewById(R.id.btnEliminarHorarios);
         btTurnos = (Button)findViewById(R.id.btnTurnos);
+        btMain = (Button)findViewById(R.id.btnMain);
 
 
         spEspecialidades.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
@@ -149,7 +151,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         calendarView.setOnMonthChangeListener(new OnMonthChangeListener() {
             @Override
             public void onMonthChange(int year, int month) {
-                startActivity(getIntent());
+            startActivity(getIntent());
             }
         });
 
@@ -201,6 +203,14 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                     intent.putExtra("diaSeleccionado",  diaSeleccionado);
                     startActivity(intent);
                 }
+            }
+        });
+
+        btMain.setOnClickListener(new View.OnClickListener(){
+            public void onClick(android.view.View view){
+                Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoActivity.class);
+                intent.putExtra("usuario", (Serializable) agendaMedico.getMedico());
+                startActivity(intent);
             }
         });
     }
