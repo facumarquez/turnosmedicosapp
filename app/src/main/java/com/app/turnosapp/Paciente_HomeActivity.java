@@ -141,7 +141,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                         intent.putExtra("usuario", usuario);
                         startActivity(intent);
                     } else {
-                         Toast.makeText(Paciente_HomeActivity.this, "El paciente no se encuentra al día con el pago de la cuota", Toast.LENGTH_SHORT).show();
+                         Toast.makeText(Paciente_HomeActivity.this, "No puede tomar un turno porque que no se encuentra al día con el pago de la cuota.", Toast.LENGTH_LONG).show();
                     }
                 }
             }
