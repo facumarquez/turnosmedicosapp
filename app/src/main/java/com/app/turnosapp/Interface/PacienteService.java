@@ -1,9 +1,6 @@
 package com.app.turnosapp.Interface;
 
-import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.Paciente;
-
-import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
