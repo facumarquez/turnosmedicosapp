@@ -47,7 +47,8 @@ public class StringHelper {
 
         Calendar calendario = Calendar.getInstance();
 
-        int mesActual = calendario.get(Calendar.MONTH);
+
+        int mesActual = calendario.get(Calendar.MONTH) + 1;
 
         if(agendaMedico.getMes() > mesActual) {
             return true;

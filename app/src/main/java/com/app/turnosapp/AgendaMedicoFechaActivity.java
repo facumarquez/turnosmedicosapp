@@ -76,8 +76,8 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         calendarView = (MCalendarView) findViewById(R.id.mcvFechasMedico);
         calendarView.getMarkedDates().getAll().clear();
 
-        //todo: ver si se puede dejar deshabilitado...
-        //calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
+        
+        calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
 
         btHorarios = (Button)findViewById(R.id.btnHorarios);
         btEliminarHorarios = (Button)findViewById(R.id.btnEliminarHorarios);
