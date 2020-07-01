@@ -70,29 +70,14 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         Intent intentAgendaMedico = getIntent();
         agendaMedico = (AgendaMedico)intentAgendaMedico.getSerializableExtra(("agendaMedico"));
 
-       obtenerFechasAgenda(new IAgendaMedicoFechaCallback() {
-           @Override
-           public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechasAgenda) {
-               fechasAgendaMedico = fechasAgenda;
-
-               if(fechasAgenda != null){
-                   marcarFechasOcupadasEnCalendario();
-               }
-
-               //FACU
-               if(fechasAgendaMedico!=null) {
-                   for (AgendaMedicoFecha fecha : fechasAgendaMedico) {
-                       listaFechasOcupadas.add(fecha.getFecha());
-                   }
-               }
-           }
-       });
-
         spEspecialidades = (Spinner) findViewById(R.id.spEspecialidad);
         getEspecialidadesDelMedico(agendaMedico.getMedico().getIdUsuario());
 
         calendarView = (MCalendarView) findViewById(R.id.mcvFechasMedico);
-        calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
+        calendarView.getMarkedDates().getAll().clear();
+
+        //todo: ver si se puede dejar deshabilitado...
+        //calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
 
         btHorarios = (Button)findViewById(R.id.btnHorarios);
         btEliminarHorarios = (Button)findViewById(R.id.btnEliminarHorarios);
@@ -109,6 +94,24 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             @Override
             public void onNothingSelected(AdapterView<?> adapterView) {
                 //TODO: ver si poner algo aca....
+            }
+        });
+
+        obtenerFechasAgenda(new IAgendaMedicoFechaCallback() {
+            @Override
+            public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechasAgenda) {
+                fechasAgendaMedico = fechasAgenda;
+
+                if(fechasAgenda != null) {
+                    marcarFechasOcupadasEnCalendario();
+                }
+
+                //FACU
+                if(fechasAgendaMedico!=null) {
+                    for (AgendaMedicoFecha fecha : fechasAgendaMedico) {
+                        listaFechasOcupadas.add(fecha.getFecha());
+                    }
+                }
             }
         });
 
@@ -160,29 +163,34 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
             public void onClick(android.view.View view){
 
                 fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
-                if (listaFechasSeleccionadas == null || listaFechasSeleccionadas.size() == 0){
-                    fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
-                }
 
-                Collections.sort(listaFechasSeleccionadas);
+                if(especialidadSeleccionada != null){
+                    if (listaFechasSeleccionadas == null || listaFechasSeleccionadas.size() == 0){
+                        Toast.makeText(getApplicationContext(), "No ha seleccionado fecha/s", Toast.LENGTH_SHORT).show();
+                    }else{
+                        Collections.sort(listaFechasSeleccionadas);
 
-                for (String fecha : listaFechasSeleccionadas){
-                    fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
-                }
-                //TODO: ver si poner en null el objeto......manejar click del calendario
-                crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
-                    @Override
-                    public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
-                        if(fechas!= null){
-                            fechasAgendaMedico = fechas;
+                        for (String fecha : listaFechasSeleccionadas){
+                            fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
                         }
+                        //TODO: ver si poner en null el objeto......manejar click del calendario
+                        crearFechasAgenda(fechasAgendaMedico, new IAgendaMedicoFechaCallback() {
+                            @Override
+                            public void getFechasAgendaMedico(List<AgendaMedicoFecha> fechas) {
+                                if(fechas!= null){
+                                    fechasAgendaMedico = fechas;
+                                }
 
-                        Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
-                        intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
-                        intent.putExtra("agendaMedico", (Serializable) agendaMedico);
-                        startActivity(intent);
+                                Intent intent = new Intent(AgendaMedicoFechaActivity.this, AgendaMedicoHorarioActivity.class);
+                                intent.putExtra("fechasAgenda", (Serializable) fechasAgendaMedico);
+                                intent.putExtra("agendaMedico", (Serializable) agendaMedico);
+                                startActivity(intent);
+                            }
+                        });
                     }
-                });
+                }else{
+                    Toast.makeText(getApplicationContext(), "Debe seleccionar una especialidad", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -312,19 +320,20 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
                 }
                 else{
                     listaEspecialidades = response.body();
+                    if(listaEspecialidades != null){
+                        //Ordeno alfabeticamente las especilidades
+                        Collections.sort(listaEspecialidades, new Comparator<Especialidad>() {
+                            @Override
+                            public int compare(Especialidad o1, Especialidad o2) {
+                                return o1.getNombre().compareToIgnoreCase(o2.getNombre());
+                            }
+                        });
 
-                    //Ordeno alfabeticamente las especilidades
-                    Collections.sort(listaEspecialidades, new Comparator<Especialidad>() {
-                        @Override
-                        public int compare(Especialidad o1, Especialidad o2) {
-                            return o1.getNombre().compareToIgnoreCase(o2.getNombre());
-                        }
-                    });
-
-                    //Cargo los datos en el Spinner
-                    ArrayAdapter<Especialidad> adapter = new ArrayAdapter<Especialidad>(AgendaMedicoFechaActivity.this,android.R.layout.simple_spinner_item, listaEspecialidades);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spEspecialidades.setAdapter(adapter);
+                        //Cargo los datos en el Spinner
+                        ArrayAdapter<Especialidad> adapter = new ArrayAdapter<Especialidad>(AgendaMedicoFechaActivity.this,android.R.layout.simple_spinner_item, listaEspecialidades);
+                        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+                        spEspecialidades.setAdapter(adapter);
+                    }
                 }
             }
             @Override
