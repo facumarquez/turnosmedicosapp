@@ -2,9 +2,11 @@ package com.app.turnosapp;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -163,21 +165,43 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
         btSolicitarTurno.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                if(turnoSeleccionado==null){
+                if(turnoSeleccionado == null){
                     Toast.makeText(Paciente_AltaDeTurno2.this, "ERROR: Debe seleccionar un turno", Toast.LENGTH_SHORT).show();
                 }
                 else{
-                   //Armo el objeto agendaPaciente para solicitar el turno luego
-                    AgendaPaciente agendaPaciente = new AgendaPaciente();
-                    agendaPaciente.setPaciente(paciente);
-                    agendaPaciente.setTurno(turnoSeleccionado);
-
-                    //Solicito el turno seleccionado del listado
-                    solicitarTurno(agendaPaciente);
+                    dialogSolicitarTurno();
                 }
             }
         });
+    }
 
+    private void dialogSolicitarTurno(){
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Aviso!");
+        builder.setMessage("Está seguro que desea solicitar el turno seleccionado?");
+        builder.setCancelable(false);
+        builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                //Armo el objeto agendaPaciente para solicitar el turno luego
+                AgendaPaciente agendaPaciente = new AgendaPaciente();
+                agendaPaciente.setPaciente(paciente);
+                agendaPaciente.setTurno(turnoSeleccionado);
+
+                //Solicito el turno seleccionado del listado
+                solicitarTurno(agendaPaciente);
+            }
+        });
+
+        builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        builder.show();
     }
 
     //Este metodo es para llenar el Spinner de Medicos con los filtros de la pantalla anterior
