@@ -210,7 +210,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             ivEliminar.setImageResource(rImgs_delete);
             String estadoDelTurno = "";
 
-            
+
             if (turnos.get(position).getEstadoTurno().equals("Reservado".toUpperCase())){
                 estadoDelTurno = "";
             }else{
@@ -245,11 +245,11 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             AgendaPacienteService agendaPacienteService = RetrofitConnection.obtenerConexion
                     (getString(R.string.apiTurnosURL)).create(AgendaPacienteService.class);
 
-            Call<Turno> call = agendaPacienteService.anularTurno(turnos.get(position).getId());
-            call.enqueue(new Callback<Turno>() {
+            Call<Void> call = agendaPacienteService.anularTurno(turnos.get(position).getId());
+            call.enqueue(new Callback<Void>() {
 
                 @Override
-                public void onResponse(Call<Turno> call, Response<Turno> response) {
+                public void onResponse(Call<Void> call, Response<Void> response) {
                     if (!response.isSuccessful()) {
                         Gson gson = new Gson();
                         MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
@@ -264,7 +264,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 }
 
                 @Override
-                public void onFailure(Call<Turno> call, Throwable t) {
+                public void onFailure(Call<Void> call, Throwable t) {
                     Toast.makeText(Paciente_HomeActivity.this, "Error al actualizar el estado del turno", Toast.LENGTH_SHORT).show();
                 }
             });
