@@ -18,8 +18,8 @@ public interface AgendaPacienteService {
     @GET("AgendaPacientes/Pacientes/{idPaciente}/TurnosPendientes")
     Call<List<Turno>> getTurnosPaciente(@Path("idPaciente") Long idPaciente);
 
-    @PUT("AgendaPacientes/{idAgendaPaciente}/AnularTurno")
-    Call<Turno> anularTurno(@Path("idAgendaPaciente") Long idAgendaPaciente);
+    @POST("AgendaPacientes/{idAgendaPaciente}/AnularTurno")
+    Call<Void> anularTurno(@Path("idAgendaPaciente") Long idAgendaPaciente);
 
     @PUT("AgendaPacientes/{idAgendaPaciente}/ConfirmarTurno")
     Call<Void> confirmarTurno(@Path("idAgendaPaciente") Long idAgendaPaciente);

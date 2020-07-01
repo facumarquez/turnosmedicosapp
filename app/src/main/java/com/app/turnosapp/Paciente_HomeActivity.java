@@ -210,10 +210,8 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             ivEliminar.setImageResource(rImgs_delete);
             String estadoDelTurno = "";
 
-            //si esta disponible es porque lo anuló anteriormente y lo libero para otro paciente...
-            if (turnos.get(position).getEstadoTurno().equals("Disponible".toUpperCase())) {
-                estadoDelTurno = " - " + "ANULADO";
-            }else if (turnos.get(position).getEstadoTurno().equals("Reservado".toUpperCase())){
+            
+            if (turnos.get(position).getEstadoTurno().equals("Reservado".toUpperCase())){
                 estadoDelTurno = "";
             }else{
                 estadoDelTurno = " - " + turnos.get(position).getEstadoTurno();

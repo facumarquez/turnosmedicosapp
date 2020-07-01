@@ -76,7 +76,7 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         calendarView = (MCalendarView) findViewById(R.id.mcvFechasMedico);
         calendarView.getMarkedDates().getAll().clear();
 
-        
+
         calendarView.travelTo(new DateData(agendaMedico.getAnio(), agendaMedico.getMes(), 1));
 
         btHorarios = (Button)findViewById(R.id.btnHorarios);
