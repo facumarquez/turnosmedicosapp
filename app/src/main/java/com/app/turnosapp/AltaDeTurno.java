@@ -256,7 +256,7 @@ public class AltaDeTurno extends AppCompatActivity {
                 btListaDeEspera.setEnabled(false);
                 mesSeleccionado = month;
                 anioSeleccionado = year;
-                Toast.makeText(AltaDeTurno.this, mesSeleccionado + " "+ anioSeleccionado, Toast.LENGTH_SHORT).show();
+                //Toast.makeText(AltaDeTurno.this, mesSeleccionado + " "+ anioSeleccionado, Toast.LENGTH_SHORT).show();
                 getTurnosCalendario(especialidadSeleccionada.getId(),medicoSeleccionado.getIdUsuario(),mesSeleccionado,anioSeleccionado,horarioSeleccionado);
             }
         });
@@ -266,29 +266,34 @@ public class AltaDeTurno extends AppCompatActivity {
             public void onDateClick(View view, DateData date) {
 
                 boolean Marcado = false;
-                MarkedDates markedDates = calendarView.getMarkedDates();
-                ArrayList markData = markedDates.getAll();
-                for (int i = 0; i < markData.size(); i++) {
-                    if (markData.get(i) == date) {
-                        Marcado = true;
-                    }
+                if (!date.getMonthString().equals(StringHelper.rellenarConCeros(String.valueOf(mesSeleccionado),2))) {
+                    Toast.makeText(getApplicationContext(), "Debe seleccionar un día dentro del mes de la agenda", Toast.LENGTH_LONG).show();
                 }
-
-                String anio = StringHelper.rellenarConCeros(String.valueOf(date.getYear()),4);
-                String mes = StringHelper.rellenarConCeros(String.valueOf(date.getMonth()),2);
-                String dia = StringHelper.rellenarConCeros(String.valueOf(date.getDay()),2);
-                String fechaFormatoJapones = anio + mes + dia;
-
-                if (Marcado) {
-                    calendarView.unMarkDate(date);
-                    pintarCalendario();
-                } else {
-                    pintarCalendario();
-                    if(listafechasConTurnosDisponibles.contains(fechaFormatoJapones)) {
-                        calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
+                else{
+                    MarkedDates markedDates = calendarView.getMarkedDates();
+                    ArrayList markData = markedDates.getAll();
+                    for (int i = 0; i < markData.size(); i++) {
+                        if (markData.get(i) == date) {
+                            Marcado = true;
+                        }
                     }
-                    calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.GREEN)));
-                    diaSeleccionado=date.getDay();
+
+                    String anio = StringHelper.rellenarConCeros(String.valueOf(date.getYear()),4);
+                    String mes = StringHelper.rellenarConCeros(String.valueOf(date.getMonth()),2);
+                    String dia = StringHelper.rellenarConCeros(String.valueOf(date.getDay()),2);
+                    String fechaFormatoJapones = anio + mes + dia;
+
+                    if (Marcado) {
+                        calendarView.unMarkDate(date);
+                        pintarCalendario();
+                    } else {
+                        pintarCalendario();
+                        if(listafechasConTurnosDisponibles.contains(fechaFormatoJapones)) {
+                            calendarView.unMarkDate(date.setMarkStyle(new MarkStyle(MarkStyle.DOT, Color.GREEN)));
+                        }
+                        calendarView.markDate(date.setMarkStyle(new MarkStyle(MarkStyle.BACKGROUND, Color.GREEN)));
+                        diaSeleccionado=date.getDay();
+                    }
                 }
             }
         });

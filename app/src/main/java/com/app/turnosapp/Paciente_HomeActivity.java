@@ -296,7 +296,7 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                     if (!response.isSuccessful()) {
                         Gson gson = new Gson();
                         MensajeError mensaje = gson.fromJson(response.errorBody().charStream(), MensajeError.class);
-                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(Paciente_HomeActivity.this, mensaje.getMessage(), Toast.LENGTH_LONG).show();
                         finish();
                         startActivity(getIntent());
                     } else {
@@ -312,9 +312,6 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 }
             });
         }
-
-
-
 
         private void confirmarTurno(final int position) {
 
