@@ -145,7 +145,11 @@ public class AgendaMedicoHorarioActivity extends AppCompatActivity {
 
         btGenerarTurnos.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
-                dialogGenerarTurnos();
+                if (horariosAgenda == null || horariosAgenda.size() == 0){
+                    Toast.makeText(getApplicationContext(), "No hay horarios cargados", Toast.LENGTH_SHORT).show();
+                }else{
+                    dialogGenerarTurnos();
+                }
             }
         });
 
