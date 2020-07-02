@@ -162,14 +162,13 @@ public class AgendaMedicoFechaActivity extends AppCompatActivity {
         btHorarios.setOnClickListener(new View.OnClickListener(){
             public void onClick(android.view.View view){
 
-                fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
-
                 if(especialidadSeleccionada != null){
                     if (listaFechasSeleccionadas == null || listaFechasSeleccionadas.size() == 0){
                         Toast.makeText(getApplicationContext(), "No ha seleccionado fecha/s", Toast.LENGTH_SHORT).show();
                     }else{
                         Collections.sort(listaFechasSeleccionadas);
-
+                        fechasAgendaMedico = new ArrayList<AgendaMedicoFecha>();
+                        
                         for (String fecha : listaFechasSeleccionadas){
                             fechasAgendaMedico.add(new AgendaMedicoFecha(fecha,agendaMedico,especialidadSeleccionada));
                         }
