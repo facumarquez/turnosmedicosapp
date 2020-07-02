@@ -177,7 +177,7 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
         btSolicitarTurno.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View view) {
-                if(turnoSeleccionado == null){
+                if(turnoSeleccionado == null || posicionSeleccionada==-1){
                     Toast.makeText(Paciente_AltaDeTurno2.this, "ERROR: Debe seleccionar un turno", Toast.LENGTH_SHORT).show();
                 }
                 else{
