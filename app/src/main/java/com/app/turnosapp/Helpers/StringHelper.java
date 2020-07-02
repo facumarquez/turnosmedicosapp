@@ -63,8 +63,7 @@ public class StringHelper {
         Date fechaConSieteDiasAgregados = calendario.getTime();
         String fechaConSieteDiasAgregadosFormateada = convertirFechaAFormatoJapones(fechaConSieteDiasAgregados);
 
-        //TODO: antes >=
-        if(fecha.compareTo(fechaConSieteDiasAgregadosFormateada) > 0) {
+        if(fecha.compareTo(fechaConSieteDiasAgregadosFormateada) >= 0) {
             return true;
         }else {
             return false;
