@@ -1,11 +1,13 @@
 package com.app.turnosapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -22,6 +24,7 @@ import com.app.turnosapp.Helpers.RetrofitConnection;
 import com.app.turnosapp.Helpers.StringHelper;
 import com.app.turnosapp.Interface.AgendaPacienteService;
 import com.app.turnosapp.Interface.PacienteService;
+import com.app.turnosapp.Model.AgendaPaciente;
 import com.app.turnosapp.Model.Especialidad;
 import com.app.turnosapp.Model.ManejoErrores.MensajeError;
 import com.app.turnosapp.Model.Turno;
@@ -120,7 +123,6 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             }
         });
     }
-
 
     private Boolean estaAlDiaConLaCuota(long idPaciente) {
 
@@ -227,14 +229,55 @@ public class Paciente_HomeActivity extends AppCompatActivity {
             ivEliminar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    anularTurno(position);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Paciente_HomeActivity.this);
+                    builder.setTitle("Aviso!");
+                    builder.setMessage("Está seguro que desea eliminar el turno seleccionado?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                           anularTurno(position);
+                        }
+                    });
+
+                    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    builder.show();
                 }
+
             });
+
             ivConfirmar.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    confirmarTurno(position);
+
+                    AlertDialog.Builder builder = new AlertDialog.Builder(Paciente_HomeActivity.this);
+                    builder.setTitle("Aviso!");
+                    builder.setMessage("Está seguro que desea confirmar el turno seleccionado?");
+                    builder.setCancelable(false);
+                    builder.setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            confirmarTurno(position);
+                        }
+                    });
+
+                    builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getApplicationContext(), "Operación cancelada!", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                    builder.show();
                 }
+
             });
 
             return row;
@@ -269,6 +312,9 @@ public class Paciente_HomeActivity extends AppCompatActivity {
                 }
             });
         }
+
+
+
 
         private void confirmarTurno(final int position) {
 

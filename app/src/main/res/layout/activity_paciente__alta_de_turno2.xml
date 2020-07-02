@@ -55,11 +55,25 @@
 
         </ListView>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btVolver2"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:text="VOLVER" />
+
         <Button
             android:id="@+id/btSolicitarTurno"
-            android:layout_width="match_parent"
+            android:layout_width="150dp"
             android:layout_height="wrap_content"
             android:text="SOLICITAR TURNO" />
+    </LinearLayout>
+
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

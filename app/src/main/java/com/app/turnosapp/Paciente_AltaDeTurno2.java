@@ -59,6 +59,7 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
     private Spinner spMedico;
     private TextView tvMedico;
     private CheckBox cbFiltrar;
+    private Button btVolver;
 
     //Atributos que voy a utilizar
     private Usuario usuario;
@@ -87,6 +88,7 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
         spMedico = (Spinner) findViewById(R.id.spMedico2);
         tvMedico = (TextView) findViewById(R.id.tvMedico2);
         cbFiltrar = (CheckBox) findViewById(R.id.cbFiltrar);
+        btVolver = (Button) findViewById(R.id.btVolver2);
 
         //Recibo el dato de la pantalla anterior
         Bundle extras = getIntent().getExtras();
@@ -126,6 +128,16 @@ public class Paciente_AltaDeTurno2 extends AppCompatActivity {
             //Para listar los turnos de TODOS los Medicos
             getTurnosAllMedicos();
         }
+
+        btVolver.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(Paciente_AltaDeTurno2.this, AltaDeTurno.class);
+                intent.putExtra("usuario", (Serializable) usuario);
+                startActivity(intent);
+                finish();
+            }
+        });
 
         spMedico.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override

@@ -71,6 +71,7 @@ public class AltaDeTurno extends AppCompatActivity {
     private Button btSiguiente;
     private CheckBox cbAllMedicos;
     private Button btListaDeEspera;
+    private Button btVolver;
 
     //Atributos que voy a usar
     private List<AgendaMedicoFecha> listaAgendaMedicoFecha;
@@ -121,6 +122,7 @@ public class AltaDeTurno extends AppCompatActivity {
         listafechasConTurnosDisponibles = new ArrayList<String>();
         checkAllMedicos = cbAllMedicos.isChecked();
         btListaDeEspera = (Button)findViewById(R.id.btListaDeEspera);
+        btVolver = (Button)findViewById(R.id.btVolver1);
         btListaDeEspera.setEnabled(false);
 
 
@@ -145,6 +147,16 @@ public class AltaDeTurno extends AppCompatActivity {
         getEspecialidades();
 
         //lISTENERS
+        btVolver.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(AltaDeTurno.this, Paciente_HomeActivity.class);
+                intent.putExtra("usuario", (Serializable) usuario);
+                startActivity(intent);
+                finish();
+            }
+        });
+
         cbAllMedicos.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton compoundButton, boolean isChecked) {
