@@ -63,7 +63,8 @@ public class StringHelper {
         Date fechaConSieteDiasAgregados = calendario.getTime();
         String fechaConSieteDiasAgregadosFormateada = convertirFechaAFormatoJapones(fechaConSieteDiasAgregados);
 
-        if(fecha.compareTo(fechaConSieteDiasAgregadosFormateada) >= 0) {
+        //TODO: antes >=
+        if(fecha.compareTo(fechaConSieteDiasAgregadosFormateada) > 0) {
             return true;
         }else {
             return false;
@@ -88,19 +89,21 @@ public class StringHelper {
             return false;
         }
         for (AgendaMedicoHorario horario:horarios) {
+            turnos = new ArrayList<AgendaMedicoTurno>();
+
             turnos.addAll(generarTurnos(horario.getHoraDesde(),horario.getHoraHasta()));
+
+            AgendaMedicoTurno turno = new AgendaMedicoTurno();
+            turnos.addAll(generarTurnos(desde,hasta));
+
+            for (AgendaMedicoTurno item: turnos) {
+                turnosString.add(item.getTurnoDesde() + "-" + item.getTurnoHasta());
+            }
+            turnosSinRepetir.addAll(turnosString);
+            rangoSuperpuesto = rangoSuperpuesto || turnosSinRepetir.size() != turnos.size();
         }
 
-        AgendaMedicoTurno turno = new AgendaMedicoTurno();
-        turnos.addAll(generarTurnos(desde,hasta));
-
-        for (AgendaMedicoTurno item: turnos) {
-            turnosString.add(item.getTurnoDesde() + "-" + item.getTurnoHasta());
-        }
-
-        turnosSinRepetir.addAll(turnosString);
-
-        return turnosSinRepetir.size() != turnos.size();
+        return rangoSuperpuesto;
 
     }
 
