@@ -2,6 +2,7 @@ package com.app.turnosapp.Helpers;
 
 import com.app.turnosapp.Model.AgendaMedico;
 import com.app.turnosapp.Model.AgendaMedicoHorario;
+import com.app.turnosapp.Model.AgendaMedicoTurno;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -10,9 +11,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
 
 public class StringHelper {
+
+    public static final int INTERVALO_TURNO = 15;
 
     public static String rellenarConCeros(String cadena, int digitos) {
 
@@ -76,20 +80,62 @@ public class StringHelper {
     public static boolean rangoSuperpuesto(String desde, String hasta, List<AgendaMedicoHorario> horarios) {
 
         boolean rangoSuperpuesto = false;
+        List <AgendaMedicoTurno> turnos = new ArrayList<AgendaMedicoTurno>();
+        List <String> turnosString = new ArrayList<String>();
+        HashSet<String> turnosSinRepetir = new HashSet<String>();
+
         if (horarios == null || horarios.size() == 0){
             return false;
         }
         for (AgendaMedicoHorario horario:horarios) {
-            String horaDesde = horario.getHoraDesde();
-            String horaHasta = horario.getHoraHasta();
-
-            if ((hasta.compareTo(horaDesde) > 0) && !desde.equals(horaHasta)){
-                rangoSuperpuesto = true;
-                break;
-            }
+            turnos.addAll(generarTurnos(horario.getHoraDesde(),horario.getHoraHasta()));
         }
 
-        return rangoSuperpuesto;
+        AgendaMedicoTurno turno = new AgendaMedicoTurno();
+        turnos.addAll(generarTurnos(desde,hasta));
+
+        for (AgendaMedicoTurno item: turnos) {
+            turnosString.add(item.getTurnoDesde() + "-" + item.getTurnoHasta());
+        }
+
+        turnosSinRepetir.addAll(turnosString);
+
+        return turnosSinRepetir.size() != turnos.size();
+
     }
 
+    public static List<AgendaMedicoTurno> generarTurnos(String horaDesde,String horaHasta){
+
+        List <AgendaMedicoTurno> turnos = new ArrayList<AgendaMedicoTurno>();
+
+        String turnoDesde = horaDesde;
+
+        AgendaMedicoTurno turno = generarTurno(turnoDesde);
+
+        String turnoHasta = turno.getTurnoHasta();
+
+        turnos.add(turno);
+
+        while (turnoHasta.compareTo(horaHasta) < 0) {
+            turnoDesde = turnoHasta;
+            turno = generarTurno(turnoDesde);
+            turnoHasta = turno.getTurnoHasta();
+            turnos.add(turno);
+        }
+        return turnos;
+    }
+
+    private static AgendaMedicoTurno generarTurno(String turnoDesde) {
+
+        GregorianCalendar calendario = (GregorianCalendar) GregorianCalendar.getInstance();
+        calendario.set(Calendar.HOUR_OF_DAY, Integer.valueOf(turnoDesde.substring(0,2)));
+        calendario.set(Calendar.MINUTE,Integer.valueOf(turnoDesde.substring(3,5)));
+        calendario.add(GregorianCalendar.MINUTE, INTERVALO_TURNO);
+
+        String turnoHasta = new SimpleDateFormat("HH:mm").format(calendario.getTime()).toString();
+        AgendaMedicoTurno turno = new AgendaMedicoTurno();
+        turno.setTurnoDesde(turnoDesde);
+        turno.setTurnoHasta(turnoHasta);
+        return turno;
+    }
 }
